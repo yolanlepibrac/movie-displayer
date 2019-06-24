@@ -15,6 +15,7 @@ import { resetCategories } from "../Actions/index";
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBAPI'
 import { getFilmsFromApiWithSearchedCategory } from '../API/TMDBAPI'
 import { getFilmsFromApiWithSearchedKeyWord } from '../API/TMDBAPI'
+import { getKeyWordIdFromApiWithSearchedKeyWord } from '../API/TMDBAPI'
 import { getFilmDetailFromApi } from '../API/TMDBAPI'
 import { getPopularFilmsFromApi } from '../API/TMDBAPI'
 import { getRecentFilmsFromApi } from '../API/TMDBAPI'
@@ -72,6 +73,7 @@ class DisplayCard extends Component {
       impossibleToFindKeyWord : false,
       focusCategories : false,
       keyWord : "",
+      CategoryResearched : "",
     }
   }
 
@@ -80,13 +82,11 @@ class DisplayCard extends Component {
       this.setState({
         moviesPopular : data.results,
       })
-      console.log(data.results)
     })
     getRecentFilmsFromApi().then(data => {
       this.setState({
         moviesRecent : data.results,
       })
-      console.log(data.results)
     })
 
   }
@@ -99,7 +99,6 @@ class DisplayCard extends Component {
         this.setState({movies : newMovies})
       }
     }
-    console.log(this.state.movies)
   }
 
   addlike = (id) => {
@@ -127,7 +126,6 @@ class DisplayCard extends Component {
       if(this.state.movies[i].id===id){
         var newMovies = this.state.movies;
         newMovies[i].dislikes++;
-        console.log(newMovies)
         this.setState({movies : newMovies})
       }
     }
@@ -154,7 +152,6 @@ class DisplayCard extends Component {
     }else{
       this.setState({popupIsActive : true})
     }
-    console.log(title)
   }
 
 
@@ -184,13 +181,16 @@ class DisplayCard extends Component {
             moviesSelected : data.results,
             impossibleToFindMovie : data.results.length === 0 ? true : false,
           })
-          console.log(this.state.impossibleToFindMovie)
         })
     }
   }
 
   handleChangeCategory = (event) => {
-    this.loadFilmsByCategory();
+    this.setState({
+      CategoryResearched : event.target.value,
+      focusCategories :  true
+    })
+
   }
 
   enterToSubmitCategory = (event) => {
@@ -205,7 +205,6 @@ class DisplayCard extends Component {
     for (var i = 0; i < categories.length; i++) {
       listOfCategories = listOfCategories + Object.keys(listOfGenres).find(key => listOfGenres[key] === categories[i]) + ","
     }
-    console.log(listOfCategories)
     getFilmsFromApiWithSearchedCategory(listOfCategories).then(data => {
       this.setState({
         currentReseachInAction : true,
@@ -232,30 +231,39 @@ class DisplayCard extends Component {
     this.setState({
       keyWord: event.target.value
     });
-  //  console.log(this.state.keyWord)
   }
 
   loadFilmsByKeyWord = (tabOfKeyWord) => {
-    var listOfKeyWord = "";
+    let listOfKeyWord = "";
+    let listOfKeyWordID = "";
+    let newData = [];
     for (var i = 0; i < tabOfKeyWord.length; i++) {
-      listOfKeyWord = listOfKeyWord + tabOfKeyWord[i] + ","
-    }
-    getFilmsFromApiWithSearchedKeyWord(listOfKeyWord).then(data => {
-      var newData = [];
-      for(var i=0;i<data.results.length;i++){
-        getFilmDetailFromApi(data.results[i].id).then(data2 => {
-          newData.push(data2);
+      let tabOfKeyWordI = tabOfKeyWord[i];
+      getKeyWordIdFromApiWithSearchedKeyWord(tabOfKeyWord[i]).then(data => {
+        for(var j=0;j<data.results.length;j++){
+          if(data.results[j].name === tabOfKeyWordI){
+            listOfKeyWord = listOfKeyWord + data.results[j].id.toString(10) + ",";
+          }
+        }
+        this.loadFilmsByKeyWordID(listOfKeyWord)
 
-        })
-      }
-      console.log(newData)
+      })
+    }
+
+
+  }
+
+  loadFilmsByKeyWordID = (listOfKeyWord) => {
+
+    getFilmsFromApiWithSearchedKeyWord(listOfKeyWord).then(data => {
       this.setState({
         currentReseachInAction : true,
-        moviesSelected : newData,
-        impossibleToFindKeyWord : newData.length === 0 ? true : false,
+        moviesSelected : data.results,
+        //impossibleToFindKeyWord : newData.length === 0 ? true : false,
         filmResearched : "",
       })
     })
+
   }
 
   deleteKeyWord = (keyWord) => {
@@ -272,7 +280,6 @@ class DisplayCard extends Component {
       this.setState({
         moviesSelected : data.results
       })
-      console.log(data.results)
     })
   }
 
@@ -293,6 +300,19 @@ class DisplayCard extends Component {
     this.loadFilmsByCategory();
     this.onBlurCategorySearch();
   }
+
+  renderNoCategory = () => {
+    let oneExists = false
+    Object.entries(listOfGenres).map((category) => {
+      if(category[1].toLowerCase().startsWith(this.state.CategoryResearched.toLowerCase())){
+          oneExists = true
+      }
+    })
+    if(oneExists != true){
+      return <CategorySelector Name={"NO DATA FOUND"} />
+    }
+  }
+
 
   renderMovies = (movie) => {
       return <Card
@@ -370,20 +390,23 @@ class DisplayCard extends Component {
                   <BoutonCategory Name={category} DeleteCategory={() => this.chooseOption(category)}/>) :
                   <div></div>
                 }
-                <input onClick={ this.toggleCategorySearch } style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.CategoryResearched} onChange={this.handleChangeSearchCategory} onKeyDown={this.enterToSubmitCategory} placeholder = "Categories"/>
+                <input onClick={ this.toggleCategorySearch } style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.CategoryResearched} onChange={this.handleChangeCategory} onKeyDown={this.enterToSubmitCategory} placeholder = "Categories"/>
               </div>
               <div>
                 {this.state.focusCategories ?
                 <div style={{maxHeight: 350, overflow:'auto', display:'flex', flexDirection:'column', justifyContent:'flex-start', width : '100%', backgroundColor:'rgba(0,0,0,0.05)', cursor :'pointer' }}>
+                  {1 === 1 ? this.renderNoCategory() : <div></div>}
                   {Object.entries(listOfGenres).map((category) => {
-                    var exist = false
-                    for(var i=0; i<this.props.categorySelected.length;i++){
-                      if(this.props.categorySelected[i] === category[1]){
-                        exist = true
+                    if(category[1].toLowerCase().startsWith(this.state.CategoryResearched.toLowerCase())){
+                      var exist = false
+                      for(var i=0; i<this.props.categorySelected.length;i++){
+                        if(this.props.categorySelected[i] === category[1]){
+                          exist = true
+                        }
                       }
-                    }
-                    if(exist === false){
-                      return <CategorySelector Name={category[1]} ChooseCategory={() => this.chooseOption(category[1])} />
+                      if(exist === false){
+                        return <CategorySelector Name={category[1]} ChooseCategory={() => this.chooseOption(category[1])} />
+                      }
                     }
                   })}
                 </div>:
@@ -423,9 +446,10 @@ class DisplayCard extends Component {
               <div></div>
             }
             <div style={{width: '100%', height:'80vh', display: 'flex', flexDirection: 'row', flexWrap:'wrap', borderStyle: 'solid', borderWidth: 0, borderColor: 'black', overflowY: 'scroll'}}>
-              {this.state.moviesSelected.map((movie) => (
+              {this.state.moviesSelected.length > 0 ?
+                this.state.moviesSelected.map((movie) => (
                   this.renderMovies(movie)
-                ))}
+                )) : <div></div>}
               <ResearchImpossible pose={this.state.impossibleToFindMovie ? "hovered" : "idle"} style={{width:'100%', height:'100%'}}>
                 <div style={{ width:'100%', height:'100%', textAlign:'center', display:'flex', flexDirection:'column', justifyContent:'flex-end', alignItems:'center', backgroundColor:'rgba(0,0,0,0.01)', marginTop: 0}}>
                   {this.state.impossibleToFindMovie ?
