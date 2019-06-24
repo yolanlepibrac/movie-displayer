@@ -3,6 +3,7 @@ import { getFilmDetailFromApi } from '../API/TMDBAPI';
 import Spinner from 'react-activity/lib/Spinner';
 import 'react-activity/dist/react-activity.css';
 import { getImageFromApi } from '../API/TMDBAPI'
+import { getVideoFromApi } from '../API/TMDBAPI'
 
 
 export default class MovieDetail extends Component {
@@ -11,16 +12,32 @@ export default class MovieDetail extends Component {
     this.state = {
       film: undefined,
       isLoading: true,
+      urlMovie : "",
      }
   }
 
 
   componentDidMount() {
     getFilmDetailFromApi(this.props.Id).then(data => {
+      console.log(data)
       this.setState({
         film: data,
         isLoading: false
       })
+    })
+    getVideoFromApi(this.props.Id).then(data => {
+      if(data.results){
+        if(data.results[0]){
+          this.setState({
+            urlMovie : 'https://www.youtube.com/embed/' + data.results[0].key,
+          })
+        }else{
+          this.setState({
+            urlMovie : 'https://www.youtube.com/embed/' + data.results.key,
+          })
+        }
+      }
+
     })
   }
 
@@ -35,23 +52,27 @@ export default class MovieDetail extends Component {
     }
   }
 
-  _displayImage = () => {
-    return getImageFromApi(this.state.film.backdrop_path)
+  displayTrailer = () => {
+       return <iframe width="600"  height="400" src={this.state.urlMovie} frameborder="0" allowfullscreen="1"></iframe>
   }
+
+
+
 
   _displayFilm = () => {
     const { film } = this.state
     if (this.state.film != undefined) {
       return (
-        <div style={{width:'100%', height:500, display:'flex', flexDirection:"row"}}>
-          <div style={{'width':500}}>
+        <div style={{width:'40vw', display:'flex', flexDirection:"row"}}>
+          <div style={{width:'40vw'}}>
             {getImageFromApi(film.backdrop_path) != "https://image.tmdb.org/t/p/w300null" ?
-                <img style={{width:'100%'}} src={getImageFromApi(film.backdrop_path)}/> :
-                <img style={{width:'100%'}} src={require('../Assets/images/notAvailable.jpg')}/>
+                <img style={{width:'30vw'}} src={getImageFromApi(film.poster_path)}/> :
+                <img style={{width:'40vw'}} src={require('../Assets/images/notAvailable.jpg')}/>
             }
           </div>
-          <div style={{'width':500}}>
+          <div style={{'width':'100vw'}}>
             <div style={styles.title_text}>{film.title}</div>
+            <div >{this.displayTrailer()}</div>
             <div style={styles.description_text}>{film.overview}</div>
             <div style={styles.default_text}>Sorti le {film.release_date}</div>
             <div style={styles.default_text}>Note : {film.vote_average} / 10</div>

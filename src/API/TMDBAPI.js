@@ -20,13 +20,24 @@ export function getFilmsFromApiWithSearchedCategory (listOfCategories) {
   .catch((error) => console.error(error))
 }
 
-export function getFilmsFromApiWithSearchedKeyWord (listOfKeyWord) {
+export function getKeyWordIdFromApiWithSearchedKeyWord (listOfKeyWord) {
   const url = 'https://api.themoviedb.org/3/search/keyword?api_key=' + API_TOKEN + '&query='
   + listOfKeyWord
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
 }
+
+export function getFilmsFromApiWithSearchedKeyWord (listOfKeyWord) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&with_keywords='
+  + listOfKeyWord
+  return fetch(url)
+  .then((response) => response.json())
+  .catch((error) => console.error(error))
+}
+
+
+
 
 // API/TMDBApi.js
 
@@ -40,6 +51,13 @@ export function getFilmDetailFromApi (id) {
 export function getImageFromApi (name) {
   return 'https://image.tmdb.org/t/p/w300' + name
 }
+
+export function getVideoFromApi (id) {
+  return fetch('http://api.themoviedb.org/3/movie/' + id + '/videos?api_key=' + API_TOKEN + '&language=' + Language + '\'')
+  .then((response) => response.json())
+  .catch((error) => console.error(error));
+}
+
 
 export function getPopularFilmsFromApi () {
   const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=popularity.desc'
