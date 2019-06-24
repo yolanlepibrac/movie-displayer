@@ -12,6 +12,13 @@ export function getFilmsFromApiWithSearchedText (text) {
   .catch((error) => console.error(error))
 }
 
+export function getFilmsFromApiWithSearchedFilter (urlToSearch) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + urlToSearch
+  return fetch(url)
+  .then((response) => response.json())
+  .catch((error) => console.error(error))
+}
+
 export function getFilmsFromApiWithSearchedCategory (listOfCategories) {
   const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&with_genres='
   + listOfCategories

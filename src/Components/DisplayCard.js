@@ -4,10 +4,10 @@ import React, { Component } from 'react';
 import Card from './Card';
 import Popup from './Popup';
 import YolanHeader from './YolanHeader';
-import BoutonCategory from './BoutonCategory';
-import CategorySelector from './CategorySelector';
+import BoutonElementsSelected from './BoutonElementsSelected';
 import MoviesListDisplayer from './MoviesListDisplayer';
 import ConnetionAccount from './ConnetionAccount';
+import SearchBy from './SearchBy';
 import Movies from '../Assets/movies';
 import { connect } from "react-redux";
 import { addCategory } from "../Actions/index";
@@ -16,12 +16,13 @@ import { getFilmsFromApiWithSearchedText } from '../API/TMDBAPI'
 import { getFilmsFromApiWithSearchedCategory } from '../API/TMDBAPI'
 import { getFilmsFromApiWithSearchedKeyWord } from '../API/TMDBAPI'
 import { getKeyWordIdFromApiWithSearchedKeyWord } from '../API/TMDBAPI'
+import { getFilmsFromApiWithSearchedFilter } from '../API/TMDBAPI'
 import { getFilmDetailFromApi } from '../API/TMDBAPI'
 import { getPopularFilmsFromApi } from '../API/TMDBAPI'
 import { getRecentFilmsFromApi } from '../API/TMDBAPI'
 import { getImageFromApi } from '../API/TMDBAPI'
-import { listOfGenres } from '../API/TMDBAPI'
 import posed from 'react-pose';
+import { listOfGenres } from '../API/TMDBAPI'
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -71,9 +72,7 @@ class DisplayCard extends Component {
       impossibleToFindMovie : false,
       impossibleToFindCategory : false,
       impossibleToFindKeyWord : false,
-      focusCategories : false,
       keyWord : "",
-      CategoryResearched : "",
     }
   }
 
@@ -169,11 +168,11 @@ class DisplayCard extends Component {
       this.setState({
         filmResearched: event.target.value
       });
-      this.loadFilms();
+      this.loadFilmsBySearch();
     }
   }
 
-  loadFilms = () => {
+  loadFilmsBySearch = () => {
     if (this.state.filmResearched.length > 0) { // Seulement si le texte recherché n'est pas vide
         getFilmsFromApiWithSearchedText(this.state.filmResearched).then(data => {
           this.setState({
@@ -185,35 +184,45 @@ class DisplayCard extends Component {
     }
   }
 
-  handleChangeCategory = (event) => {
+  loadFilmsByFilter = (objectOfElementsToSearchIdName) => {
+    var url
+    if(this.props.categorySelected.length > 0){
+      url =  '&with_genres=' + this.writeMoviesSearchAsString(this.props.categorySelected, objectOfElementsToSearchIdName)
+    }
+    getFilmsFromApiWithSearchedFilter(url).then(data => {
+      if(data.results){
+        this.changedListOfMoviesResearch(data.results)
+      }else{
+
+      }
+    })
+  }
+
+  writeMoviesSearchAsString = (tabOfElements, objectOfElementsToSearchIdName) => {
+    var listOfElementsSelected = "";
+    for (var i = 0; i < tabOfElements.length; i++) {
+      listOfElementsSelected = listOfElementsSelected + Object.keys(objectOfElementsToSearchIdName).find(key => objectOfElementsToSearchIdName[key] === tabOfElements[i]) + ","
+    }
+    return listOfElementsSelected
+  }
+
+  changedListOfMoviesResearch = (dataResults) =>{
     this.setState({
-      CategoryResearched : event.target.value,
-      focusCategories :  true
-    })
-
-  }
-
-  enterToSubmitCategory = (event) => {
-    if (event.keyCode  == 13) {
-      this.loadFilmsByCategory();
-    }
-  }
-
-  loadFilmsByCategory = () => {
-    var listOfCategories = "";
-    var categories =  this.props.categorySelected
-    for (var i = 0; i < categories.length; i++) {
-      listOfCategories = listOfCategories + Object.keys(listOfGenres).find(key => listOfGenres[key] === categories[i]) + ","
-    }
-    getFilmsFromApiWithSearchedCategory(listOfCategories).then(data => {
-      this.setState({
-        currentReseachInAction : true,
-        moviesSelected : data.results,
-        impossibleToFindCategory : data.results.length === 0 ? true : false,
-        filmResearched : "",
-      })
+      currentReseachInAction : true,
+      moviesSelected : dataResults,
+      impossibleToFindCategory : dataResults.length === 0 ? true : false,
+      filmResearched : "",
     })
   }
+
+
+
+  addCategorytoReduxStore = (category) => {
+    this.props.addCategory({ category });
+  }
+
+
+
 
   enterToSubmitkeyWord = (event) => {
     if ((event.keyCode  == 13 || event.keyCode  == 32)&&this.state.keyWord != "") {
@@ -249,9 +258,9 @@ class DisplayCard extends Component {
 
       })
     }
-
-
   }
+
+
 
   loadFilmsByKeyWordID = (listOfKeyWord) => {
 
@@ -283,35 +292,13 @@ class DisplayCard extends Component {
     })
   }
 
-  toggleCategorySearch = () => {
-    this.setState({
-      focusCategories : this.state.focusCategories ? false : true,
-    })
-  }
 
-  onBlurCategorySearch = () => {
-    this.setState({
-      focusCategories : false,
-    })
-  }
 
-  chooseOption = (category) => {
-    this.props.addCategory({ category });
-    this.loadFilmsByCategory();
-    this.onBlurCategorySearch();
-  }
 
-  renderNoCategory = () => {
-    let oneExists = false
-    Object.entries(listOfGenres).map((category) => {
-      if(category[1].toLowerCase().startsWith(this.state.CategoryResearched.toLowerCase())){
-          oneExists = true
-      }
-    })
-    if(oneExists != true){
-      return <CategorySelector Name={"NO DATA FOUND"} />
-    }
-  }
+
+
+
+
 
 
   renderMovies = (movie) => {
@@ -345,7 +332,7 @@ class DisplayCard extends Component {
     return (
       <div>
         <YolanHeader/>
-        <div style={{
+        <div  style={{
           display:'flex',
           flexDirection:'row',
           borderStyle: 'solid',
@@ -379,47 +366,27 @@ class DisplayCard extends Component {
             {/*Reaserch_byName*/}
             <div class="Reaserch_Film" style={{width:'85%', height : 35, borderRadius:4, backgroundColor:'rgba(0,0,0,0)', display:'flex', flexDirection:'row', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'space-between'}}>
               <input style={{width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.filmResearched} onChange={this.handleChangeSearch} onKeyDown={this.enterToSubmit} placeholder = "Search Movie"/>
-              <div  onClick={this.loadFilms} style={{paddingRight:5, width:30, height:30, overflow:'hidden', backgroundImage: "url("+ SEARCH +")", cursor:'pointer', backgroundSize: 'cover',}}>
+              <div  onClick={this.loadFilmsBySearch} style={{paddingRight:5, width:30, height:30, overflow:'hidden', backgroundImage: "url("+ SEARCH +")", cursor:'pointer', backgroundSize: 'cover',}}>
               </div>
             </div>
-            {/*Reaserch_Category*/}
-            <div class="Reaserch_Category"  style={{width:'85%'}} onKeyDown={this.enterToSubmitCategory}>
-              <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, backgroundColor:'rgba(0,0,0,0)', display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
-                {this.props.categorySelected ? this.props.categorySelected.map(
-                  (category) =>
-                  <BoutonCategory Name={category} DeleteCategory={() => this.chooseOption(category)}/>) :
-                  <div></div>
-                }
-                <input onClick={ this.toggleCategorySearch } style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.CategoryResearched} onChange={this.handleChangeCategory} onKeyDown={this.enterToSubmitCategory} placeholder = "Categories"/>
-              </div>
-              <div>
-                {this.state.focusCategories ?
-                <div style={{maxHeight: 350, overflow:'auto', display:'flex', flexDirection:'column', justifyContent:'flex-start', width : '100%', backgroundColor:'rgba(0,0,0,0.05)', cursor :'pointer' }}>
-                  {1 === 1 ? this.renderNoCategory() : <div></div>}
-                  {Object.entries(listOfGenres).map((category) => {
-                    if(category[1].toLowerCase().startsWith(this.state.CategoryResearched.toLowerCase())){
-                      var exist = false
-                      for(var i=0; i<this.props.categorySelected.length;i++){
-                        if(this.props.categorySelected[i] === category[1]){
-                          exist = true
-                        }
-                      }
-                      if(exist === false){
-                        return <CategorySelector Name={category[1]} ChooseCategory={() => this.chooseOption(category[1])} />
-                      }
-                    }
-                  })}
-                </div>:
-                <div></div>
-                }
-              </div>
-            </div>
+            <SearchBy PlaceHolder={"Categories"}
+              ReduxStoreOfElements = {this.props.categorySelected}
+              addtoReduxStore = {this.addCategorytoReduxStore}
+              objectOfElementsToSearchIdName = {listOfGenres}
+              loadFilmsByFilter = {this.loadFilmsByFilter}
+            />
+            <SearchBy PlaceHolder={"key words"}
+              ReduxStoreOfElements = {this.props.categorySelected}
+              addtoReduxStore = {this.addCategorytoReduxStore}
+              objectOfElementsToSearchIdName = {listOfGenres}
+              loadFilmsByFilter = {this.loadFilmsByFilter}
+            />
             {/*Reaserch_byKeyWord*/}
             <div class="Reaserch_byKeyWord"  style={{width:'85%'}}>
               <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, backgroundColor:'rgba(0,0,0,0)', display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
                 {this.state.tabKeyWord && this.state.tabKeyWord.length > 0 ? this.state.tabKeyWord.map(
                   (keyWord) =>
-                  <BoutonCategory Name={keyWord} DeleteCategory={() => this.deleteKeyWord(keyWord)}/>) :
+                  <BoutonElementsSelected Name={keyWord} DeleteCategory={() => this.deleteKeyWord(keyWord)}/>) :
                   <div></div>
                 }
                 <input style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.keyWord} onChange={this.handleChangeSearchkeyWord} onKeyDown={this.enterToSubmitkeyWord} placeholder = "Key Word"/>
@@ -430,7 +397,7 @@ class DisplayCard extends Component {
           {this.state.popupIsActive ? <div><Popup closePopup={this.togglePopup} Id={this.state.currentMovieId} Title={this.state.currentMovieTitle}/></div> : <div></div>}
           <div style={{display:'flex', flexDirection:'column', width:'75vw'}}>
             <div style={{display:'flex', flexDirection:'row', width:'100%'}}>
-              <div style={{height:'15vh', width:'60vw', overflowX:'hidden', backgroundColor:'rgba(0,0,0,0)', display:'flex', textAlign:'center', justifyContent:'center', alignItems:'center'}}>
+              <div tabIndex={0} style={{height:'15vh', width:'60vw', overflowX:'hidden', backgroundColor:'rgba(0,0,0,0)', display:'flex', textAlign:'center', justifyContent:'center', alignItems:'center'}}>
                 Welcome to MOVIE DISPLAYER, a simple engine to store your favourites movies.<br/>
                 This website is based on The Moovie Database API. You will find this API on https://www.themoviedb.org/
               </div>
