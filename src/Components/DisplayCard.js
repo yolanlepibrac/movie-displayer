@@ -82,9 +82,7 @@ class DisplayCard extends Component {
       currentMovieId : "",
       currentMovieTitle : "",
       impossibleToFindMovie : false,
-      impossibleToFindCategory : false,
-      impossibleToFindKeyWord : false,
-      keyWord : "",
+      impossibleToFindMovieWithFilter : false,
       keyWordsToSearch : [],
       listOfGenres : listOfGenres,
     }
@@ -193,6 +191,7 @@ class DisplayCard extends Component {
             currentReseachInAction : true,
             moviesSelected : data.results,
             impossibleToFindMovie : data.results.length === 0 ? true : false,
+            impossibleToFindMovieWithFilter : false,
           })
         })
     }
@@ -212,8 +211,19 @@ class DisplayCard extends Component {
     if(runResearch){
       console.log(url)
       getFilmsFromApiWithSearchedFilter(url).then(data => {
-        if(data.results){
+        console.log(data.results)
+        if(data.results.length>0){
           this.changedListOfMoviesResearch(data.results)
+          this.setState({
+            impossibleToFindMovieWithFilter: false,
+            impossibleToFindMovie : false,
+          })
+        }else{
+          this.setState({
+            moviesSelected : [],
+            impossibleToFindMovieWithFilter: true,
+            impossibleToFindMovie : false,
+          })
         }
       })
     }
@@ -253,6 +263,52 @@ class DisplayCard extends Component {
         })
       }
     })
+  }
+
+  writeStringIfSearchCollapse = () => {
+    var stringToWrite = "Impossible to find a movie with";
+    var divToRender = <div>Impossible to find a movie with"</div>
+    if(this.props.categorySelected.length>0){
+      if(this.props.categorySelected.length === 1){
+        stringToWrite = stringToWrite + "the category : \"" + this.props.categorySelected[0] + "\". "
+        divToRender = divToRender + <div>the category : "<strong>{this.props.categorySelected[0]}</strong>". </div>
+      }else if(this.props.categorySelected.length > 1){
+        stringToWrite = stringToWrite + "the categories : \""
+        divToRender = divToRender + <div>the categories : "</div>
+        for(var i=0; i<this.props.categorySelected.length-1;i++){
+          divToRender = divToRender + <div><strong>{this.props.categorySelected[i]}</strong> , </div>
+          stringToWrite = stringToWrite + this.props.categorySelected[i] + "\" , \""
+        }
+        stringToWrite = stringToWrite + this.props.categorySelected[this.props.categorySelected.length-1]
+        divToRender = divToRender + <div><strong>{this.props.categorySelected.length-1}</strong></div> + <div>". </div>
+      }
+      if(this.props.keywordSelected.length>0){
+        stringToWrite = stringToWrite + " and "
+      }else{
+          stringToWrite = stringToWrite + "\". "
+      }
+    }
+    if(this.props.keywordSelected.length>0){
+      if(this.props.keywordSelected.length === 1){
+        stringToWrite = stringToWrite + "the key word : \"" + this.props.keywordSelected[0] + "\". "
+        divToRender = divToRender + <div>the key word : "<strong>{this.props.keywordSelected[0]}</strong>". </div>
+      }else if(this.props.keywordSelected.length > 1){
+        stringToWrite = stringToWrite + "the key words : \""
+        divToRender = divToRender + <div>the key words : "</div>
+        for(var i=0; i<this.props.keywordSelected.length-1;i++){
+          divToRender = divToRender + <div><strong>{this.props.keywordSelected[i]}</strong> , </div>
+          stringToWrite = stringToWrite + this.props.keywordSelected[i] + "\" , \""
+        }
+        stringToWrite = stringToWrite + this.props.keywordSelected[this.props.keywordSelected.length-1] + "\". "
+        divToRender = divToRender + <div><strong>{this.props.keywordSelected.length-1}</strong></div> + <div>". </div>
+      }
+
+    }
+
+
+
+    stringToWrite = stringToWrite + "Please try another research"
+    return stringToWrite
   }
 
 
@@ -372,17 +428,6 @@ class DisplayCard extends Component {
               loadFilmsByFilter = {this.loadFilmsByFilter}
               StateListOfChlid = {this.keyWordsToSearch}
             />
-            {/*Reaserch_byKeyWord*/}
-            <div class="Reaserch_byKeyWord"  style={{width:'85%'}}>
-              <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, backgroundColor:'rgba(0,0,0,0)', display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
-                {this.state.tabKeyWord && this.state.tabKeyWord.length > 0 ? this.state.tabKeyWord.map(
-                  (keyWord) =>
-                  <BoutonElementsSelected Name={keyWord} DeleteCategory={() => this.deleteKeyWord(keyWord)}/>) :
-                  <div></div>
-                }
-                <input style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.keyWord} onChange={this.handleChangeSearchkeyWord} onKeyDown={this.enterToSubmitkeyWord} placeholder = "Key Word"/>
-              </div>
-            </div>
 
           </div>
           {this.state.popupIsActive ? <div><Popup closePopup={this.togglePopup} Id={this.state.currentMovieId} Title={this.state.currentMovieTitle}/></div> : <div></div>}
@@ -408,12 +453,18 @@ class DisplayCard extends Component {
                 this.state.moviesSelected.map((movie) => (
                   this.renderMovies(movie)
                 )) : <div></div>}
-              <ResearchImpossible pose={this.state.impossibleToFindMovie ? "hovered" : "idle"} style={{width:'100%', height:'100%'}}>
+              <ResearchImpossible pose={this.state.impossibleToFindMovie || this.state.impossibleToFindMovieWithFilter ? "hovered" : "idle"} style={{width:'100%', height:'100%'}}>
                 <div style={{ width:'100%', height:'100%', textAlign:'center', display:'flex', flexDirection:'column', justifyContent:'flex-end', alignItems:'center', backgroundColor:'rgba(0,0,0,0.01)', marginTop: 0}}>
                   {this.state.impossibleToFindMovie ?
                     <div>
                       Impossible to find a movie with the word : "<strong>{this.state.filmResearched}</strong>" .<br/>
                       Please try another research
+                    </div> :
+                    <div></div>
+                  }
+                  {this.state.impossibleToFindMovieWithFilter ?
+                    <div>
+                      {this.writeStringIfSearchCollapse()}
                     </div> :
                     <div></div>
                   }
