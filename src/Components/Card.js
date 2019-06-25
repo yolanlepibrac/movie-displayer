@@ -190,7 +190,7 @@ export default class Card extends Component {
             </div>
             <div style={{height : 15, marginBottom:5, marginTop:10, marginRight:10,marginLeft:10, fontSize:12, display:"flex", width:'100%', overflow:'hidden', flexDirection:'row'}}>
               {this.props.Category ?
-                this.props.Category.map((nomCategory) => <div style={{padding : 0, marginLeft:5,marginRight:5, backgroundColor:'rgba(200,224,255,1)', borderRadius:5}}>{listOfGenres[nomCategory]}</div>):
+                this.props.Category.map((nomCategory) => <div style={{padding : 0, marginLeft:5,marginRight:5, backgroundColor:'rgba(200,224,255,1)', borderRadius:5}}>{nomCategory}</div>):
                 <div></div>
             }
             </div>

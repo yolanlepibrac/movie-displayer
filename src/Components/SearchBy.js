@@ -14,7 +14,7 @@ class SearchBy extends Component {
 
   enterToSubmit = (event) => {
     if (event.keyCode  == 13) {
-      this.props.loadFilmsByFilter(this.props.objectOfElementsToSearchIdName);
+      this.props.loadFilmsByFilter();
     }
   }
 
@@ -25,19 +25,15 @@ class SearchBy extends Component {
       elementsResearched : event.target.value,
       focus :  true
     })
+    if(this.props.StateListOfChlid){
+      this.props.StateListOfChlid(event.target.value)
+    }
   }
 
   toggleCategorySearch = () => {
     this.setState({
       focus : this.state.focus ? false : true,
     })
-  }
-
-  onBlurCategorySearch = (e) => {
-      this.setState({
-        focus : false,
-        elementsResearched : "",
-      })
   }
 
   onBlurElement = (e) => {
@@ -64,15 +60,18 @@ class SearchBy extends Component {
 
   chooseOption = (element) => {
     this.props.addtoReduxStore(element);
-    this.props.loadFilmsByFilter(this.props.objectOfElementsToSearchIdName);
-    this.onBlurCategorySearch();
+    this.props.loadFilmsByFilter();
+    this.setState({
+      focus : false,
+      elementsResearched : "",
+    })
   }
 
 
   noDataFound = () => {
     let oneExists = false
-    Object.entries(this.props.objectOfElementsToSearchIdName).map((category) => {
-      if(category[1].toLowerCase().startsWith(this.state.elementsResearched.toLowerCase())){
+    Object.entries(this.props.objectOfElementsToSearchIdName).map((element) => {
+      if(element[1].name.toLowerCase().startsWith(this.state.elementsResearched.toLowerCase())){
           oneExists = true
       }
     })
@@ -98,16 +97,16 @@ class SearchBy extends Component {
           {this.state.focus ?
           <div style={{maxHeight: 350, overflow:'auto', display:'flex', flexDirection:'column', justifyContent:'flex-start', width : '100%', backgroundColor:'rgba(0,0,0,0.05)', cursor :'pointer' }}>
             {this.noDataFound()}
-            {Object.entries(this.props.objectOfElementsToSearchIdName).map((category) => {
-              if(category[1].toLowerCase().startsWith(this.state.elementsResearched.toLowerCase())){
+            {Object.entries(this.props.objectOfElementsToSearchIdName).map((element) => {
+              if(element[1].name.toLowerCase().startsWith(this.state.elementsResearched.toLowerCase())){
                 var exist = false
                 for(var i=0; i<this.props.ReduxStoreOfElements.length;i++){
-                  if(this.props.ReduxStoreOfElements[i] === category[1]){
+                  if(this.props.ReduxStoreOfElements[i] === element[1].name){
                     exist = true
                   }
                 }
                 if(exist === false){
-                  return <SearchSelector Name={category[1]} ChooseCategory={() => this.chooseOption(category[1])} />
+                  return <SearchSelector Name={element[1].name} ChooseCategory={() => this.chooseOption(element[1].name)} />
                 }
               }
             })}

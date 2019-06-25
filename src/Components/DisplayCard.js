@@ -11,6 +11,7 @@ import SearchBy from './SearchBy';
 import Movies from '../Assets/movies';
 import { connect } from "react-redux";
 import { addCategory } from "../Actions/index";
+import { addKeyword } from "../Actions/index";
 import { resetCategories } from "../Actions/index";
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBAPI'
 import { getFilmsFromApiWithSearchedCategory } from '../API/TMDBAPI'
@@ -23,12 +24,24 @@ import { getRecentFilmsFromApi } from '../API/TMDBAPI'
 import { getImageFromApi } from '../API/TMDBAPI'
 import posed from 'react-pose';
 import { listOfGenres } from '../API/TMDBAPI'
-
+/*
 function mapDispatchToProps(dispatch) {
   return {
     addCategory: (article) => dispatch(addCategory(article)),
+    addKeyword: (article) => dispatch(addKeyword(article)),
     resetCategories: () => dispatch(resetCategories()),
     categorySelectedRedux:dispatch.categorySelectedRedux,
+    keyWordSelectedRedux:dispatch.keyWordSelectedRedux,
+  };
+};
+*/
+function mapDispatchToProps(dispatch) {
+  return {
+    addCategory: (article) => dispatch(addCategory(article)),
+    addKeyword: (article) => dispatch(addKeyword(article)),
+    //resetCategories: () => dispatch(resetCategories()),
+    categorySelectedRedux:dispatch.categorySelectedRedux,
+    keyWordSelectedRedux:dispatch.keyWordSelectedRedux,
   };
 };
 
@@ -57,7 +70,6 @@ class DisplayCard extends Component {
     super(props)
     this.state = {
       movies: Movies,
-      categorySelected : [],
       keyWord: "",
       tabKeyWord : [],
       moviesSelected : [],
@@ -73,6 +85,8 @@ class DisplayCard extends Component {
       impossibleToFindCategory : false,
       impossibleToFindKeyWord : false,
       keyWord : "",
+      keyWordsToSearch : [],
+      listOfGenres : listOfGenres,
     }
   }
 
@@ -184,24 +198,32 @@ class DisplayCard extends Component {
     }
   }
 
-  loadFilmsByFilter = (objectOfElementsToSearchIdName) => {
-    var url
+  loadFilmsByFilter = () => {
+    let url = "";
+    var runResearch = false;
     if(this.props.categorySelected.length > 0){
-      url =  '&with_genres=' + this.writeMoviesSearchAsString(this.props.categorySelected, objectOfElementsToSearchIdName)
+      runResearch = true;
+      url =  url + '&with_genres=' + this.writeMoviesSearchAsString(this.props.categorySelected, this.state.listOfGenres)
     }
-    getFilmsFromApiWithSearchedFilter(url).then(data => {
-      if(data.results){
-        this.changedListOfMoviesResearch(data.results)
-      }else{
+    if(this.props.keywordSelected.length > 0){
+      runResearch = true;
+      url =  url + '&with_keywords=' + this.writeMoviesSearchAsString(this.props.keywordSelected, this.state.keyWordsToSearch)
+    }
+    if(runResearch){
+      console.log(url)
+      getFilmsFromApiWithSearchedFilter(url).then(data => {
+        if(data.results){
+          this.changedListOfMoviesResearch(data.results)
+        }
+      })
+    }
 
-      }
-    })
   }
 
   writeMoviesSearchAsString = (tabOfElements, objectOfElementsToSearchIdName) => {
     var listOfElementsSelected = "";
     for (var i = 0; i < tabOfElements.length; i++) {
-      listOfElementsSelected = listOfElementsSelected + Object.keys(objectOfElementsToSearchIdName).find(key => objectOfElementsToSearchIdName[key] === tabOfElements[i]) + ","
+      listOfElementsSelected = listOfElementsSelected + objectOfElementsToSearchIdName.find(x=>x.name ===  tabOfElements[i]).id + ","
     }
     return listOfElementsSelected
   }
@@ -215,74 +237,40 @@ class DisplayCard extends Component {
     })
   }
 
+  getListOfIdKeyword = (stringSearched) => {
+    if(stringSearched != ""){
+      getKeyWordIdFromApiWithSearchedKeyWord(stringSearched).then(data => {
+        return data.results
+      })
+    }else return []
+  }
+
+  keyWordsToSearch = (keyWord) => {
+    getKeyWordIdFromApiWithSearchedKeyWord(keyWord).then(data => {
+      if(data.results){
+        this.setState({
+          keyWordsToSearch : this.state.keyWordsToSearch.concat(data.results),
+        })
+      }
+    })
+  }
+
+
 
 
   addCategorytoReduxStore = (category) => {
     this.props.addCategory({ category });
   }
 
-
-
-
-  enterToSubmitkeyWord = (event) => {
-    if ((event.keyCode  == 13 || event.keyCode  == 32)&&this.state.keyWord != "") {
-      let newTabOfKeyWord = this.state.tabKeyWord.concat(this.state.keyWord)
-      this.setState({
-        tabKeyWord : newTabOfKeyWord,
-        keyWord : ""
-      })
-      this.loadFilmsByKeyWord(newTabOfKeyWord);
-    }
-  }
-
-
-  handleChangeSearchkeyWord = (event) => {
-    this.setState({
-      keyWord: event.target.value
-    });
-  }
-
-  loadFilmsByKeyWord = (tabOfKeyWord) => {
-    let listOfKeyWord = "";
-    let listOfKeyWordID = "";
-    let newData = [];
-    for (var i = 0; i < tabOfKeyWord.length; i++) {
-      let tabOfKeyWordI = tabOfKeyWord[i];
-      getKeyWordIdFromApiWithSearchedKeyWord(tabOfKeyWord[i]).then(data => {
-        for(var j=0;j<data.results.length;j++){
-          if(data.results[j].name === tabOfKeyWordI){
-            listOfKeyWord = listOfKeyWord + data.results[j].id.toString(10) + ",";
-          }
-        }
-        this.loadFilmsByKeyWordID(listOfKeyWord)
-
-      })
-    }
+  addKeyWordtoReduxStore= (keyword) => {
+    this.props.addKeyword({ keyword });
   }
 
 
 
-  loadFilmsByKeyWordID = (listOfKeyWord) => {
 
-    getFilmsFromApiWithSearchedKeyWord(listOfKeyWord).then(data => {
-      this.setState({
-        currentReseachInAction : true,
-        moviesSelected : data.results,
-        //impossibleToFindKeyWord : newData.length === 0 ? true : false,
-        filmResearched : "",
-      })
-    })
 
-  }
 
-  deleteKeyWord = (keyWord) => {
-    let index = this.state.tabKeyWord.indexOf(keyWord);
-    this.state.tabKeyWord.splice(index, 1)
-    this.setState({
-      tabKeyWord : this.state.tabKeyWord,
-    })
-    this.loadFilmsByKeyWord(this.state.tabKeyWord);
-  }
 
   goHome = () => {
     getPopularFilmsFromApi().then(data => {
@@ -291,6 +279,8 @@ class DisplayCard extends Component {
       })
     })
   }
+
+
 
 
 
@@ -372,14 +362,15 @@ class DisplayCard extends Component {
             <SearchBy PlaceHolder={"Categories"}
               ReduxStoreOfElements = {this.props.categorySelected}
               addtoReduxStore = {this.addCategorytoReduxStore}
-              objectOfElementsToSearchIdName = {listOfGenres}
+              objectOfElementsToSearchIdName = {this.state.listOfGenres}
               loadFilmsByFilter = {this.loadFilmsByFilter}
             />
             <SearchBy PlaceHolder={"key words"}
-              ReduxStoreOfElements = {this.props.categorySelected}
-              addtoReduxStore = {this.addCategorytoReduxStore}
-              objectOfElementsToSearchIdName = {listOfGenres}
+              ReduxStoreOfElements = {this.props.keywordSelected}
+              addtoReduxStore = {this.addKeyWordtoReduxStore}
+              objectOfElementsToSearchIdName = {this.state.keyWordsToSearch}
               loadFilmsByFilter = {this.loadFilmsByFilter}
+              StateListOfChlid = {this.keyWordsToSearch}
             />
             {/*Reaserch_byKeyWord*/}
             <div class="Reaserch_byKeyWord"  style={{width:'85%'}}>
@@ -451,6 +442,7 @@ let styles = {
 const mapStateToProps = (state) => {
   return {
     categorySelected:state.categorySelectedRedux,
+    keywordSelected:state.keyWordSelectedRedux,
   }
 }
 
