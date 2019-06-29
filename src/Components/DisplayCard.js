@@ -21,6 +21,8 @@ import { getFilmsFromApiWithSearchedFilter } from '../API/TMDBAPI'
 import { getFilmDetailFromApi } from '../API/TMDBAPI'
 import { getPopularFilmsFromApi } from '../API/TMDBAPI'
 import { getRecentFilmsFromApi } from '../API/TMDBAPI'
+import { getUpcomingFilmsFromApi } from '../API/TMDBAPI'
+import { getTopRatedFilmsFromApi } from '../API/TMDBAPI'
 import { getImageFromApi } from '../API/TMDBAPI'
 import posed from 'react-pose';
 import { listOfGenres } from '../API/TMDBAPI'
@@ -85,6 +87,11 @@ class DisplayCard extends Component {
       impossibleToFindMovieWithFilter : false,
       keyWordsToSearch : [],
       listOfGenres : listOfGenres,
+      colorOngletUpcoming : "rgba(200,200,200,1)",
+      colorOngletPopular : "rgba(200,200,200,1)",
+      colorOngletTopRated : "rgba(200,200,200,1)",
+      colorOngletNowInCinemas : "rgba(200,200,200,1)",
+      colorOngletHome : "rgba(200,200,200,1)",
     }
   }
 
@@ -192,6 +199,11 @@ class DisplayCard extends Component {
             moviesSelected : data.results,
             impossibleToFindMovie : data.results.length === 0 ? true : false,
             impossibleToFindMovieWithFilter : false,
+            colorOngletUpcoming : "rgba(200,200,200,1)",
+            colorOngletPopular : "rgba(200,200,200,1)",
+            colorOngletTopRated : "rgba(200,200,200,1)",
+            colorOngletNowInCinemas : "rgba(200,200,200,1)",
+            colorOngletHome : "rgba(200,200,200,1)",
           })
         })
     }
@@ -244,6 +256,11 @@ class DisplayCard extends Component {
       moviesSelected : dataResults,
       impossibleToFindCategory : dataResults.length === 0 ? true : false,
       filmResearched : "",
+      colorOngletUpcoming : "rgba(200,200,200,1)",
+      colorOngletPopular : "rgba(200,200,200,1)",
+      colorOngletTopRated : "rgba(200,200,200,1)",
+      colorOngletNowInCinemas : "rgba(200,200,200,1)",
+      colorOngletHome : "rgba(200,200,200,1)",
     })
   }
 
@@ -305,14 +322,9 @@ class DisplayCard extends Component {
 
     }
 
-
-
     stringToWrite = stringToWrite + "Please try another research"
     return stringToWrite
   }
-
-
-
 
   addCategorytoReduxStore = (category) => {
     this.props.addCategory({ category });
@@ -322,27 +334,73 @@ class DisplayCard extends Component {
     this.props.addKeyword({ keyword });
   }
 
-
-
-
-
-
-
-  goHome = () => {
+  searchPopular = () => {
     getPopularFilmsFromApi().then(data => {
       this.setState({
-        moviesSelected : data.results
+        currentReseachInAction : true,
+        moviesSelected : data.results,
+        colorOngletUpcoming : "rgba(200,200,200,1)",
+        colorOngletPopular : "rgba(0,0,0,1)",
+        colorOngletTopRated : "rgba(200,200,200,1)",
+        colorOngletNowInCinemas : "rgba(200,200,200,1)",
+        colorOngletHome : "rgba(200,200,200,1)",
+      })
+    })
+  }
+  searchNowInCinemas = () => {
+      console.log('ppp')
+    getRecentFilmsFromApi().then(data => {
+      this.setState({
+        currentReseachInAction : true,
+        moviesSelected : data.results,
+        colorOngletUpcoming : "rgba(200,200,200,1)",
+        colorOngletPopular : "rgba(200,200,200,1)",
+        colorOngletTopRated : "rgba(200,200,200,1)",
+        colorOngletNowInCinemas : "rgba(0,0,0,1)",
+        colorOngletHome : "rgba(200,200,200,1)",
+      })
+    })
+  }
+  searchTopRated = () => {
+    getTopRatedFilmsFromApi().then(data => {
+      this.setState({
+        currentReseachInAction : true,
+        moviesSelected : data.results,
+        colorOngletUpcoming : "rgba(200,200,200,1)",
+        colorOngletPopular : "rgba(200,200,200,1)",
+        colorOngletTopRated : "rgba(0,0,0,1)",
+        colorOngletNowInCinemas : "rgba(200,200,200,1)",
+        colorOngletHome : "rgba(200,200,200,1)",
+      })
+    })
+  }
+  searchUpcoming = () => {
+    getUpcomingFilmsFromApi().then(data => {
+      this.setState({
+        currentReseachInAction : true,
+        moviesSelected : data.results,
+        colorOngletUpcoming : "rgba(0,0,0,1)",
+        colorOngletPopular : "rgba(200,200,200,1)",
+        colorOngletTopRated : "rgba(200,200,200,1)",
+        colorOngletNowInCinemas : "rgba(200,200,200,1)",
+        colorOngletHome : "rgba(200,200,200,1)",
       })
     })
   }
 
-
-
-
-
-
-
-
+  goHome = () => {
+    getPopularFilmsFromApi().then(data => {
+      this.setState({
+        currentReseachInAction : false,
+        moviesSelected : data.results,
+        colorOngletUpcoming : "rgba(200,200,200,1)",
+        colorOngletPopular : "rgba(200,200,200,1)",
+        colorOngletTopRated : "rgba(200,200,200,1)",
+        colorOngletNowInCinemas : "rgba(200,200,200,1)",
+        colorOngletHome : "rgba(0,0,0,1)",
+      })
+    })
+  }
 
 
 
@@ -439,6 +497,19 @@ class DisplayCard extends Component {
               </div>
               <ConnetionAccount/>
             </div>
+            <div style={{width:"100%", height:40, display:"flex", flexDirection:'row', justifyContent:"flex-start", fontSize:23}}>
+              <div onClick={this.searchNowInCinemas} style={{marginLeft:20, marginRight:40, cursor:"pointer", color:this.state.colorOngletNowInCinemas}}>Now in Cinemas
+              </div>
+              <div onClick={this.searchTopRated} style={{marginLeft:20, marginRight:40, cursor:"pointer", color:this.state.colorOngletTopRated}}>Top Rated
+              </div>
+              <div onClick={this.searchPopular} style={{marginLeft:20, marginRight:40, cursor:"pointer", color:this.state.colorOngletPopular}}>Popular
+              </div>
+              <div onClick={this.searchUpcoming}style={{marginLeft:20, marginRight:40, cursor:"pointer", color:this.state.colorOngletUpcoming}}>Upcoming
+              </div>
+              <div onClick={this.goHome} style={{marginLeft:20, marginRight:40, cursor:"pointer", color:this.state.colorOngletHome}}>Home
+              </div>
+            </div>
+
             {!this.state.currentReseachInAction ?
               <div>
                 <div style={{width:'100%', backgroundColor:'rgba(0,0,0,0)', fontSize:25, textAlign:'start', paddingLeft:30,}}><strong>Popular Movies</strong></div>

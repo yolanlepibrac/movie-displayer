@@ -67,14 +67,28 @@ export function getVideoFromApi (id) {
 
 
 export function getPopularFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=popularity.desc'
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=vote_count.desc'
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
 }
 
 export function getRecentFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=release_date.desc'
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=popularity.desc'
+  return fetch(url)
+  .then((response) => response.json())
+  .catch((error) => console.error(error))
+}
+
+export function getTopRatedFilmsFromApi () {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=vote_average.desc'
+  return fetch(url)
+  .then((response) => response.json())
+  .catch((error) => console.error(error))
+}
+
+export function getUpcomingFilmsFromApi () {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&&sort_by=release_date.desc'
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
