@@ -4,8 +4,8 @@
 const API_TOKEN = "81df88d8f10659819b6ccc4284e48374";
 const Language = "fr"
 
-export function getFilmsFromApiWithSearchedText (text) {
-  const url = 'https://api.themoviedb.org/3/search/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query='
+export function getFilmsFromApiWithSearchedText (text, page) {
+  const url = 'https://api.themoviedb.org/3/search/movie?api_key=' + API_TOKEN + '&language=' + Language  + '&page=' + page + '&query='
   + text
   return fetch(url)
   .then((response) => response.json())
@@ -55,6 +55,18 @@ export function getFilmDetailFromApi (id) {
     .catch((error) => console.error(error));
 }
 
+export function getSimilarMoviesFromApi (id) {
+  return fetch('https://api.themoviedb.org/3/movie/' + id + '/similar?api_key=' + API_TOKEN + '&language=' + Language + '\'')
+    .then((response) => response.json())
+    .catch((error) => console.error(error));
+}
+
+export function getCreditsFromApi (id) {
+  return fetch('https://api.themoviedb.org/3/movie/' + id + '/credits?api_key=' + API_TOKEN + '&language=' + Language + '\'')
+    .then((response) => response.json())
+    .catch((error) => console.error(error));
+}
+
 export function getImageFromApi (name) {
   return 'https://image.tmdb.org/t/p/w300' + name
 }
@@ -66,29 +78,29 @@ export function getVideoFromApi (id) {
 }
 
 
-export function getPopularFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=vote_count.desc'
+export function getPopularFilmsFromApi (page) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&page=' + page + '&sort_by=vote_count.desc'
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
 }
 
-export function getRecentFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=popularity.desc'
+export function getRecentFilmsFromApi (page) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&page=' + page + '&sort_by=popularity.desc'
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
 }
 
-export function getTopRatedFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&sort_by=vote_average.desc'
+export function getTopRatedFilmsFromApi (page) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&page=' + page + '&sort_by=vote_average.desc'
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))
 }
 
-export function getUpcomingFilmsFromApi () {
-  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&&sort_by=release_date.desc'
+export function getUpcomingFilmsFromApi (page) {
+  const url = 'https://api.themoviedb.org/3/discover/movie?api_key=' + API_TOKEN + '&language=' + Language + '&query=' + '&page=' + page + '&sort_by=popularity.desc' + "&primary_release_date.gte=" + "2019-08-03"
   return fetch(url)
   .then((response) => response.json())
   .catch((error) => console.error(error))

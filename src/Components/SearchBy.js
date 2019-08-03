@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SearchSelector from './SearchSelector';
 import BoutonElementsSelected from './BoutonElementsSelected';
+import { Dropdown } from "react-bootstrap";
 
 
 class SearchBy extends Component {
@@ -15,6 +16,9 @@ class SearchBy extends Component {
   enterToSubmit = (event) => {
     if (event.keyCode  == 13) {
       this.props.loadFilmsByFilter();
+    }
+    if(event.keyCode  == 27){
+      this.toggleCategorySearch();
     }
   }
 
@@ -76,7 +80,7 @@ class SearchBy extends Component {
       }
     })
     if(oneExists != true){
-      return <SearchSelector Name={"NO DATA FOUND"} />
+      return <SearchSelector Name={"NO DATA FOUND"} theme={this.props.theme}/>
     }
   }
 
@@ -85,14 +89,18 @@ class SearchBy extends Component {
     return(
 
       <div class="Reaserch_Element"  style={{width:'85%'}} onKeyDown={this.enterToSubmit} onBlur={this.onBlurElement}>
-        <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, backgroundColor:'rgba(0,0,0,0)', display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
-          {this.props.ReduxStoreOfElements ? this.props.ReduxStoreOfElements.map(
-            (category) =>
-            <BoutonElementsSelected Name={category} DeleteCategory={() => this.chooseOption(category)}/>) :
-            <div></div>
-          }
-          <input onClick={ this.toggleCategorySearch } style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.elementsResearched} onChange={this.handleChangeCategory} onKeyDown={this.enterToSubmit} placeholder = {this.props.PlaceHolder}/>
-        </div>
+
+          <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, color:this.props.theme.bouton.element1.color, backgroundColor:this.props.theme.bouton.element1.interior, display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
+            {this.props.ReduxStoreOfElements ? this.props.ReduxStoreOfElements.map(
+              (el) =>
+              <BoutonElementsSelected Name={el} DeleteCategory={() => this.chooseOption(el)} theme={this.props.theme}/>) :
+              <div></div>
+            }
+            <input onClick={ this.toggleCategorySearch } style={{marginTop:5, width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none',  color:this.props.theme.bouton.element1.color, backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.elementsResearched} onChange={this.handleChangeCategory} onKeyDown={this.enterToSubmit} placeholder = {this.props.PlaceHolder}>
+            </input>
+          </div>
+
+
         <div>
           {this.state.focus ?
           <div style={{maxHeight: 350, overflow:'auto', display:'flex', flexDirection:'column', justifyContent:'flex-start', width : '100%', backgroundColor:'rgba(0,0,0,0.05)', cursor :'pointer' }}>
@@ -106,7 +114,7 @@ class SearchBy extends Component {
                   }
                 }
                 if(exist === false){
-                  return <SearchSelector Name={element[1].name} ChooseCategory={() => this.chooseOption(element[1].name)} />
+                  return <SearchSelector Name={element[1].name} ChooseCategory={() => this.chooseOption(element[1].name)} theme={this.props.theme}/>
                 }
               }
             })}

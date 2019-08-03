@@ -9,27 +9,27 @@ export default class SearchSelector extends React.Component {
     super(props);
     this.state = {
       hover : false,
-      backgroundColor:'rgba(1,1,1,0)',
+      backgroundColor:this.props.theme.bouton.element1.interior
     };
   }
 
   hover = () => {
     this.setState({
       hover : true,
-      backgroundColor:'rgba(0,0,0,0.1)'
+      backgroundColor:this.props.theme.bouton.element2.interior
     })
   }
   blur = () => {
     this.setState({
       hover : false,
-      backgroundColor:'rgba(1,1,1,0)'
+      backgroundColor:this.props.theme.bouton.element1.interior
     })
   }
 
   render(){
     return(
 
-      <div onClick={this.props.ChooseCategory} onMouseEnter={this.hover} onMouseLeave={this.blur} style={{backgroundColor:this.state.backgroundColor}}>{
+      <div onClick={this.props.ChooseCategory} onMouseEnter={this.hover} onMouseLeave={this.blur} style={{backgroundColor:this.state.backgroundColor, color:this.props.theme.bouton.element1.color}}>{
         this.props.Name
       }
       </div>

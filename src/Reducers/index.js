@@ -1,10 +1,14 @@
 import { ADD_CATEGORY } from "../Constants/action-types";
 import { ADD_KEYWORD } from "../Constants/action-types";
 import { RESET_CATEGORY } from "../Constants/action-types";
+import { SET_USEREMAIL } from "../Constants/action-types";
+import { SET_ACCOUNTSTATE } from "../Constants/action-types";
 
 const initialState = {
   categorySelectedRedux: [],
   keyWordSelectedRedux: [],
+  userEmailRedux : "myEmail",
+  accountStateRedux:{"sizeCard":1},
 };
 
 
@@ -39,7 +43,16 @@ function rootReducer(state = initialState, action) {
 
 }else if (action.type === RESET_CATEGORY) {
     state.keyWordSelectedRedux = [];
+}else if (action.type === SET_ACCOUNTSTATE) {
+  let nextState
+    nextState = {
+      ...state,
+      accountStateRedux: action.accountState
+    }
+    localStorage.setItem("userData" , JSON.stringify(action.accountState))
+  return nextState || state
 }
+
 return state;
 
 }
