@@ -54,9 +54,15 @@ export function getFilmDetailFromApi (id) {
     .then((response) => response.json())
     .catch((error) => console.error(error));
 }
-
+/*
 export function getSimilarMoviesFromApi (id) {
   return fetch('https://api.themoviedb.org/3/movie/' + id + '/similar?api_key=' + API_TOKEN + '&language=' + Language + '\'')
+    .then((response) => response.json())
+    .catch((error) => console.error(error));
+}
+*/
+export function getSimilarMoviesFromApi (id) {
+  return fetch('https://api.themoviedb.org/3/movie/' + id + '/recommendations?api_key=' + API_TOKEN + '&language=' + Language + '\'')
     .then((response) => response.json())
     .catch((error) => console.error(error));
 }

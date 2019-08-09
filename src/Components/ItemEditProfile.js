@@ -89,7 +89,7 @@ class ItemEditProfileComponent extends React.Component {
         {this.state.modifiedUserName ?
           <div style={{display:"flex", flexDirection:"row", width:300, height:30, justifyContent:"flex-start"}} createPlaceHolder={this.createPlaceHolder}>
             <div class="form-group col-md-6" style={{width: 150, height:30, marginLeft:30, padding:0}} >
-              <InputSettingValue handleChange={this.handleChange} placeHolder={this.props.placeHolder} enterToSubmit={this.enterToSubmit}/>
+              <InputSettingValue handleChange={this.handleChange} placeHolder={this.props.placeHolderValue} enterToSubmit={this.enterToSubmit}/>
             </div>
             <div style={{width: 100, height:30, display:"flex", flexDirection:'row', alignItems:"center"}} >
               <button style={{width: 30, height:28,  display:"flex", flexDirection:"row", justifyContent:"center", textAlign:"center",  margin:0, padding:0, marginRight:5, backgroundColor:theme.bouton.element3.interior}} type="button" class="btn btn-secondary " onClick={this.validate}>OK</button>

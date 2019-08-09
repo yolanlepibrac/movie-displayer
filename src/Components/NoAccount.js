@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 
 
-import { Signup } from './Signup';
+import Signup from './Signup';
 import Login from './Login';
 
 import { bounceInDown } from 'react-animations';
@@ -91,7 +91,7 @@ export default class NoAccount extends React.Component {
                 <div style={{width:20, height:20, marginLeft:84, zIndex:10, backgroundImage:"url("+ require('../Assets/images/triangle.png') +")", backgroundSize:"cover"}}>
                 </div>
                 <div style={{borderStyle: 'solid', borderWidth: 0, marginTop:0, paddingBottom:30, borderColor: 'black',paddingLeft:30, paddingRight:30, backgroundColor:'rgba(230,230,230,1)', borderRadius:0, paddingTop:10}}>
-                  <Login/>
+                  <Login connect={this.props.connect}/>
                 </div>
                 </BouncyDiv>
               </div>
@@ -110,7 +110,7 @@ export default class NoAccount extends React.Component {
                   <div style={{width:20, height:20, marginLeft:210, zIndex:10, backgroundImage:"url("+ require('../Assets/images/triangle.png') +")", backgroundSize:"cover"}}>
                   </div>
                   <div style={{  borderStyle: 'solid', borderWidth: 0, paddingBottom:30, borderColor: 'black',paddingLeft:30, paddingRight:30, backgroundColor:'rgba(230,230,230,1)', borderRadius:0, paddingTop:10}}>
-                    <Signup/>
+                    <Signup connect={this.props.connect}/>
                   </div>
                   </BouncyDiv>
                 </div>

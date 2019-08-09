@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import posed from 'react-pose';
 import { listOfGenres } from '../API/TMDBAPI'
+import WatchLaterButton from './WatchLaterButton';
+import FavouritesButton from './FavouritesButton';
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { PrivateRoute } from './PrivateRoute';
+
+import { changeAccountState } from "../Actions/index";
+import { connect } from "react-redux";
 
 const widthLikeBar = 200;
 const heightRatio = 20;
@@ -79,8 +86,16 @@ const NumberOfDislike = posed.div({
      },
 });
 
+function mapDispatchToProps(dispatch) {
+  return {
+    changeAccountState: (article) => dispatch(changeAccountState(article)),
+    accountStateRedux:dispatch.accountStateRedux,
+    connectedRedux:dispatch.connectedRedux,
+  };
+};
 
-export default class Card extends Component {
+
+export class CardComponent extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -90,8 +105,7 @@ export default class Card extends Component {
       hovered : false,
       likeLogo:require('../Assets/images/heartLiked.png'),
       borderLiked : "white",
-      watchLaterLogo : require('../Assets/images/watched.png'),
-      toWatchHover : false,
+
       mount:false,
      }
   }
@@ -124,49 +138,8 @@ export default class Card extends Component {
     })
   }
 
-  toggleLikeCard = () => {
-    this.props.toggleInToFavourites(this.props.Movie)
-  }
 
-  deleteLikeEnter = () => {
-    if(this.props.Movie.inToFavourites){
-      this.setState({
-        likeLogo: require('../Assets/images/quitLiked.png') ,
-      })
-    }
-  }
 
-  deleteLikeLeave = () => {
-    if(this.props.Movie.inToFavourites){
-      this.setState({
-        likeLogo: require('../Assets/images/heartLiked.png') ,
-      })
-    }
-  }
-
-  togglePutInToWatchedList = () => {
-    this.props.toggleInToWatchList(this.props.Movie)
-  }
-
-  enterWatchLater = () => {
-    if(this.props.Movie.inToWatchList === false) {
-      this.setState({
-        watchLaterLogo : require('../Assets/images/watchedInvert.png'),
-      })
-      this.myTimer=setTimeout(()=>this.setState({ toWatchHover : true, }), 500)
-    }
-
-  }
-
-  leaveWatchLater = () => {
-    if(this.props.Movie.inToWatchList === false) {
-      this.setState({
-        watchLaterLogo : require('../Assets/images/watched.png'),
-        toWatchHover : false,
-      })
-      clearTimeout(this.myTimer)
-    }
-  }
 
 
   render() {
@@ -176,17 +149,13 @@ export default class Card extends Component {
       <div style={{width:  this.props.WidthCard*this.props.Size, height:(this.props.HeightCard+20)*this.props.Size, backgroundColor:"rgba(0,0,0,0)", marginLeft:20}}
           onMouseLeave={this.onLeaveCard} onMouseEnter={this.onHoverCard} >
           <div style={{width:  (this.props.WidthCard)*this.props.Size, height: (this.props.HeightCard-30)*this.props.Size, position:"relative"}}>
-            <div onMouseEnter={this.deleteLikeEnter} onMouseLeave={this.deleteLikeLeave} onClick={this.toggleLikeCard} style={{width:30*this.props.Size, height:30*this.props.Size, top:5*this.props.Size, right:5*this.props.Size, position:"absolute",}}>
-            {this.props.Movie.inToFavourites ?
-              <div  style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", width:30*this.props.Size, height:30*this.props.Size, borderWidth:1, borderStyle:"solid",  borderRadius:"50%", borderColor:"rgba(255,123,191,1)"}}>
-                <img src={this.state.likeLogo} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer', backgroundColor:"rgba(200,200,200,0.2)", borderRadius:"50%"}}/>
-              </div>
+            {this.props.connected ?
+              <FavouritesButton Movie={this.props.Movie}
+              toggleInToFavourites={this.props.toggleInToFavourites}
+              Size={this.props.Size}/>
               :
-              <div  style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", width:30*this.props.Size, height:30*this.props.Size, borderWidth:1, borderStyle:"solid",  borderRadius:"50%", borderColor:"white"}}>
-                <img src={require('../Assets/images/heart.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer', backgroundColor:"rgba(200,200,200,0.2)", borderRadius:"50%"}}/>
-              </div>
+              null
             }
-            </div>
             <div style={{width:this.props.widthCard*this.props.Size, marginLeft:0, cursor:'pointer', height:'100%', display:"flex", alignItems:"center", justifyContent:"center", backgroundColor:"rgba(250,250,250,1)"}} onClick={this.displayMovieDetail}>
                 {this.props.Src != "https://image.tmdb.org/t/p/w300null" ?
                   <img src={this.props.Src} style={{width:this.props.WidthCard*this.props.Size, height:'100%'}}/>
@@ -195,7 +164,7 @@ export default class Card extends Component {
                 }
             </div>
 
-            <div  style={{width: '100%',display : 'flex',flexDirection : 'row',justifyContent : 'space-between',cursor:'pointer',paddingLeft : 0,paddingRight : 0,}}>
+            <div  style={{width: '100%',display : 'flex',flexDirection : 'row',justifyContent : 'space-between',cursor:'pointer',paddingLeft : 0,paddingRight : 0, backgroundColor:"rgba(210,210,210,1)",}}>
               <div style={{position:"absolute", width: "100%", bottom : 0, left:0, height:-(this.props.HeightCard-30-150), overflow:"hidden"}}>
                 <BottomCard pose={this.state.hovered ? "hovered" : "idle"} onClick={this.displayMovieDetail}>
                   <div style={{width:"100%", height:150*this.props.Size}}>
@@ -224,18 +193,27 @@ export default class Card extends Component {
               </div>
               <div style={{height : 20*this.props.Size, overflow : 'hidden', fontSize:13*this.props.Size, overflow:"hidden", display:"flex", marginTop:5, justifyContent:"center"}}><strong>{this.props.Movie.title}</strong>
               </div>
-              <div style={{height:30*this.props.Size, width:30*this.props.Size, position:"relative", }} onClick={this.togglePutInToWatchedList} onMouseEnter={this.enterWatchLater} onMouseLeave={this.leaveWatchLater}>
-                  {this.props.Movie.inToWatch ?
-                    <img src={require('../Assets/images/watchedActive.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
-                    :
-                    <img src={require('../Assets/images/watched.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
-                  }
-
-                  {this.state.toWatchHover ? <div style={{position :'absolute', top:30, left:0, width:90, paddingLeft : 5, paddingRight :5, fontSize : 12, backgroundColor : '#EFEFEF', color:'black', borderColor : 'black', borderWidth : 0.5, borderStyle:'solid'}}>Watch it later</div> : null }
+              <div style={{height : 20, overflow : 'hidden', minWidth:30 }}>
+                {this.props.connected ?
+                  <WatchLaterButton Movie={this.props.Movie} toggleInToWatchList={this.props.toggleInToWatchList} Size={this.props.Size}/>
+                  :null
+                }
               </div>
+
             </div>
           </div>
       </div>
     )
   }
 }
+
+
+const mapStateToProps = (state) => {
+  return {
+    accountState:state.accountStateRedux,
+    connected:state.connectedRedux,
+  }
+}
+
+const Card = connect(mapStateToProps, mapDispatchToProps)(CardComponent);
+export default Card;

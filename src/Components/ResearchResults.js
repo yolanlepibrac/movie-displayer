@@ -43,7 +43,24 @@ class ResearchResultsComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      fontSizeCardMore:this.props.accountState.sizeCard?40*this.props.accountState.sizeCard:40,
+      backgroundColorCardMore:this.props.accountState.theme?ThemesItems[this.props.accountState.theme].background.element3.interior:"rgba(255,123,191,0.2)",
+      colorCardMore:this.props.accountState.theme?ThemesItems[this.props.accountState.theme].background.element2.color:"black",
     };
+  }
+
+  onQuitLastCard = () => {
+    this.setState({
+      fontSizeCardMore:this.props.accountState.sizeCard?40*this.props.accountState.sizeCard:40,
+      backgroundColorCardMore:this.props.accountState.theme?ThemesItems[this.props.accountState.theme].background.element3.interior:"rgba(255,123,191,0.2)",
+    })
+  }
+
+  onEnterLastCard = () => {
+    this.setState({
+      fontSizeCardMore:this.props.accountState.sizeCard?60*this.props.accountState.sizeCard:60,
+      backgroundColorCardMore:this.props.accountState.theme?ThemesItems[this.props.accountState.theme].background.element2.interior:"rgba(255,123,191,0.2)",
+    })
   }
 
   componentDidMount = () => {
@@ -219,7 +236,7 @@ class ResearchResultsComponent extends React.Component {
                 this.renderMovies(movie)
               ))}
               {this.props.moviesSelected.length>0 ?
-                <div onClick={this.props.extendResearch} style={{marginLeft:20, width:200*this.props.accountState.sizeCard, height:300*this.props.accountState.sizeCard, backgroundColor:theme.background.element3.interior, color:theme.background.element3.color, fontSize:50*this.props.accountState.sizeCard, display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", cursor:"pointer"}}>+
+                <div onClick={this.props.extendResearch} onMouseEnter={this.onEnterLastCard} onMouseLeave={this.onQuitLastCard} style={{marginLeft:20, width:this.props.accountState.sizeCard ? 200*this.props.accountState.sizeCard : 200, height:this.props.accountState.sizeCard? 300*this.props.accountState.sizeCard:300, backgroundColor:this.state.backgroundColorCardMore, color:this.state.colorCardMore, fontSize:this.state.fontSizeCardMore, display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", cursor:"pointer"}}>+
                 </div>
                 : null
               }

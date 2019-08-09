@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import posed from 'react-pose';
 import MovieDetail from './MovieDetail';
 
+import { changeAccountState } from "../Actions/index";
+import { connect } from "react-redux";
+
 const PopUpAnimation = posed.div({
     idle: {
 
@@ -26,8 +29,17 @@ const PopUpAnimation = posed.div({
      },
 });
 
+function mapDispatchToProps(dispatch) {
+  return {
+    changeAccountState: (article) => dispatch(changeAccountState(article)),
+    accountStateRedux:dispatch.accountStateRedux,
+    connectedRedux:dispatch.connectedRedux,
+  };
+};
 
-class Popup extends React.Component {
+
+
+class PopupComponent extends React.Component {
 
 
   constructor(props) {
@@ -135,25 +147,30 @@ class Popup extends React.Component {
         <PopUpAnimation pose={this.state.appear ? "hovered" : "idle"} style={{background: 'white', position : 'fixed', width:'70vw', overflow:"hidden"}}>
           <div className='menu' style={{width:'100%', height:"5vh", color:'black', backgroundColor:'rgba(248,248,248,1)', display:'flex', justifyContent:'space-between'}}>
             <div style={{width:250, textAlign:'left', marginLeft:10, display:'flex', alignItems:'center', fontSize:22}}>
-              <div onMouseEnter={this.deleteLikeEnter} onMouseLeave={this.deleteLikeLeave} onClick={this.toggleLikeCard} style={{width:30, height:30, top:5, right:5, borderRadius:"50%"}}>
-              {this.props.Movie.inToFavourites ?
-                <div  style={{width:30, height:30, borderWidth:1, borderStyle:"solid", display:"flex", justifyContent:"center", alignItems:"center", borderRadius:"50%", borderColor:"rgba(255,123,191,1)"}}>
-                  <img src={this.state.likeLogo} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+              {this.props.connected ?
+                <div style={{width:250, textAlign:'left', display:'flex', alignItems:'center', fontSize:22}}>
+                <div onMouseEnter={this.deleteLikeEnter} onMouseLeave={this.deleteLikeLeave} onClick={this.toggleLikeCard} style={{width:30, height:30, top:5, right:5, borderRadius:"50%"}}>
+                {this.props.Movie.inToFavourites ?
+                  <div  style={{width:30, height:30, borderWidth:1, borderStyle:"solid", display:"flex", justifyContent:"center", alignItems:"center", borderRadius:"50%", borderColor:"rgba(255,123,191,1)"}}>
+                    <img src={this.state.likeLogo} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+                  </div>
+                  :
+                  <div  style={{width:30, height:30, borderWidth:1, borderStyle:"solid", display:"flex", justifyContent:"center", alignItems:"center", borderRadius:"50%", borderColor:"black"}}>
+                    <img src={require('../Assets/images/heartB.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+                  </div>
+                }
                 </div>
-                :
-                <div  style={{width:30, height:30, borderWidth:1, borderStyle:"solid", display:"flex", justifyContent:"center", alignItems:"center", borderRadius:"50%", borderColor:"black"}}>
-                  <img src={require('../Assets/images/heartB.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+                <div style={{height:30, width:30, display:"flex", justifyContent:"center", alignItems:"center", marginLeft:10 }} onClick={this.togglePutInToWatchedList} onMouseEnter={this.enterWatchLater} onMouseLeave={this.leaveWatchLater}>
+                    {this.props.Movie.inToWatch ?
+                      <img src={require('../Assets/images/watched2Active.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+                      :
+                      <img src={require('../Assets/images/watched2.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
+                    }
+                    {this.state.toWatchHover ? <div style={{position :'absolute', top:30, left:0, width:90, paddingLeft : 5, paddingRight :5, fontSize : 12, backgroundColor : '#EFEFEF', color:'black', borderColor : 'black', borderWidth : 0.5, borderStyle:'solid'}}>Watch it later</div> : null }
                 </div>
+                </div>
+              :null
               }
-              </div>
-              <div style={{height:30, width:30, display:"flex", justifyContent:"center", alignItems:"center", marginLeft:10 }} onClick={this.togglePutInToWatchedList} onMouseEnter={this.enterWatchLater} onMouseLeave={this.leaveWatchLater}>
-                  {this.props.Movie.inToWatch ?
-                    <img src={require('../Assets/images/watched2Active.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
-                    :
-                    <img src={require('../Assets/images/watched2.png')} style={{justifyContent : 'center', 'height':'100%', cursor : 'pointer'}}/>
-                  }
-                  {this.state.toWatchHover ? <div style={{position :'absolute', top:30, left:0, width:90, paddingLeft : 5, paddingRight :5, fontSize : 12, backgroundColor : '#EFEFEF', color:'black', borderColor : 'black', borderWidth : 0.5, borderStyle:'solid'}}>Watch it later</div> : null }
-              </div>
             </div>
             <div style={{fontSize:22}}>
               {this.props.Movie.title}
@@ -182,4 +199,12 @@ let styles = {
     },
 }
 
+const mapStateToProps = (state) => {
+  return {
+    accountState:state.accountStateRedux,
+    connected:state.connectedRedux,
+  }
+}
+
+const Popup = connect(mapStateToProps, mapDispatchToProps)(PopupComponent);
 export default Popup;

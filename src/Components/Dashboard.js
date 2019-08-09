@@ -15,6 +15,7 @@ function mapDispatchToProps(dispatch) {
   return {
     changeAccountState: (article) => dispatch(changeAccountState(article)),
     accountStateRedux:dispatch.accountStateRedux,
+    connectedRedux:dispatch.connectedRedux,
   };
 };
 
@@ -22,8 +23,6 @@ function mapDispatchToProps(dispatch) {
 export class DashboardComponent extends React.Component {
     constructor(props){
         super(props);
-        this.disconnect.bind(this);
-
         this.state = {
             file: '',
             userName:localStorage.userName,
@@ -35,9 +34,11 @@ export class DashboardComponent extends React.Component {
 
 
 
-    disconnect = event => {
+    disconnect = () => {
         API.logout();
-        window.location = "/";
+        this.props.changeAccountState({});
+        this.props.disconnect()
+      //  window.location = "/movies-displayer";
     }
 
     _handleImageChange(e, context) {
@@ -129,26 +130,28 @@ export class DashboardComponent extends React.Component {
                     <strong>{this.props.accountState.userName}
                     </strong>
                   </div>
+
                     <div style={{display:"flex", flexDirection:"row", justifyContent:"space-around"}}>
-                      <Link to="/favourites">
-                        <Route path='/favourites' component={FavouritesActive} />
-                        <Route path='/watchLater' component={FavouritesInactive} />
-                        <Route path='/settings' component={FavouritesInactive} />
-                        <Route path='/home' component={FavouritesInactive} />
+                      <Link to="/movies-displayer/favourites">
+                        <Route exact path='/movies-displayer/favourites' component={FavouritesActive} />
+                        <Route exact path='/movies-displayer/watchLater' component={FavouritesInactive} />
+                        <Route exact path='/movies-displayer/settings' component={FavouritesInactive} />
+                        <Route exact path='/movies-displayer/welcome' component={FavouritesInactive} />
                       </Link>
-                      <Link to="/watchLater">
-                        <Route path='/favourites' component={WatchLaterInactive} />
-                        <Route path='/watchLater' component={WatchLaterActive} />
-                        <Route path='/settings' component={WatchLaterInactive} />
-                        <Route path='/home' component={WatchLaterInactive} />
+                      <Link to="/movies-displayer/watchLater">
+                        <Route exact path='/movies-displayer/favourites' component={WatchLaterInactive} />
+                        <Route exact path='/movies-displayer/watchLater' component={WatchLaterActive} />
+                        <Route exact path='/movies-displayer/settings' component={WatchLaterInactive} />
+                        <Route exact path='/movies-displayer/welcome' component={WatchLaterInactive} />
                       </Link>
-                      <Link to="/settings">
-                        <Route path='/favourites' component={SettingsInactive} />
-                        <Route path='/watchLater' component={SettingsInactive} />
-                        <Route path='/settings' component={SettingsActive} />
-                        <Route path='/home' component={SettingsInactive} />
+                      <Link to="/movies-displayer/settings">
+                        <Route exact path='/movies-displayer/favourites' component={SettingsInactive} />
+                        <Route exact path='/movies-displayer/watchLater' component={SettingsInactive} />
+                        <Route exact path='/movies-displayer/settings' component={SettingsActive} />
+                        <Route exact path='/movies-displayer/welcome' component={SettingsInactive} />
                       </Link>
                     </div>
+
                   </div>
                   <div style={{display:"flex", flexDirection:"column", fontSize:12, textAlign:"center",alignItems:"center", overflow:"hidden", width:"8vw", height:"100%"}}>
                     <div >
@@ -160,9 +163,11 @@ export class DashboardComponent extends React.Component {
                         }
                       </label>
                       <input id="file-input" type="file" onChange={(e)=>this._handleImageChange(e, this)} style={{display: "none"}}/>
-                      <div onClick={this.disconnect}   style={{ overflow:"hidden", display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", textAlign:"center", width:70, height:30, backgroundColor:theme.bouton.element2.interior, color:"white",cursor:'pointer', backgroundSize: 'cover', borderRadius:10}}>
-                      Disconnect
-                      </div>
+                      <Link to="/movies-displayer">
+                        <div onClick={this.disconnect}   style={{ overflow:"hidden", display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", textAlign:"center", width:70, height:30, backgroundColor:theme.bouton.element2.interior, color:"white",cursor:'pointer', backgroundSize: 'cover', borderRadius:10}}>
+                        Disconnect
+                        </div>
+                      </Link>
                     </div>
                   </div>
               </div>
@@ -174,6 +179,7 @@ export class DashboardComponent extends React.Component {
 const mapStateToProps = (state) => {
   return {
     accountState:state.accountStateRedux,
+    connected:state.connectedRedux,
   }
 }
 

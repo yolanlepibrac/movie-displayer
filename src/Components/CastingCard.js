@@ -33,10 +33,10 @@ export default class CastingCard extends Component {
             <div style={{width:this.props.Width, height:this.props.Height, cursor:"pointer", textAlign:"left", fontSize:12, textAlign:"center", backgroundColor:'rgba(255,255,255,1)', display:"flex", flexDirection:"column", justifyContent:"left"}}
             onClick={this.hideName}>
               <strong>
-                {this.props.Person.name}
+                {this.props.Person ? this.props.Person.name : "no information"}
               </strong>
               <div>
-                {this.props.Person.character}
+                {this.props.Person ? this.props.Person.character : "about this character"}
               </div>
             </div>
             :

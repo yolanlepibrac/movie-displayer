@@ -9,6 +9,7 @@ import { Button, FormGroup, FormControl, ControlLabel, Dropdown, DropdownButton 
 import { DropdownMenu, MenuItem, DropdownItem, DropdownToggle } from 'react-bootstrap-dropdown-menu';
 import API from '../Utils/API';
 import ThemesItems from '../Utils/Themes';
+import { displayLoading } from "../Actions/index";
 
 import { changeAccountState } from "../Actions/index";
 import { connect } from "react-redux";
@@ -122,6 +123,7 @@ function mapDispatchToProps(dispatch) {
   return {
     changeAccountState: (article) => dispatch(changeAccountState(article)),
     accountStateRedux:dispatch.accountStateRedux,
+    displayLoading: (boolean) => dispatch(displayLoading(boolean)),
   };
 };
 
@@ -270,6 +272,7 @@ class SettingsComponent extends React.Component {
   }
 
   chooseTheme = (id) => {
+    this.props.displayLoading(true)
     this.setToDatabase(id, "theme", this);
   }
 
@@ -304,8 +307,8 @@ class SettingsComponent extends React.Component {
                 </label>
               </div>
               <div style={{width:"100%", height:"100%", display:"flex", flexDirection:"column", paddingTop:20, paddingLeft:20}}>
-                <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "name", this)} placeHolder={this.props.accountState.name ? this.props.accountState.name : "Name"} value={this.props.accountState.name}  heightSize={1}/>
-                <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "userName", this)} placeHolder={this.props.accountState.userName ? this.props.accountState.userName : "User Name"} value={this.props.accountState.userName}  heightSize={1}/>
+                <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "name", this)} placeHolder={"name"} placeHolderValue={this.props.accountState.name ? this.props.accountState.name : ""} value={this.props.accountState.name}  heightSize={1}/>
+                <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "userName", this)} placeHolder={"user name"} placeHolderValue={this.props.accountState.userName ? this.props.accountState.userName : ""} value={this.props.accountState.userName}  heightSize={1}/>
                 <div style={{width:"100%", display : "flex", flexDirection:"column", paddingLeft:20, marginBottom:20}}>
                   <strong style={{width: 200, textAlign:"left", fontSize:13}}>Birth</strong>
                   <div style={{width:"100%", display : "flex", flexDirection:"row"}}>
@@ -353,9 +356,9 @@ class SettingsComponent extends React.Component {
             <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems:"flex-start",  paddingTop:10, paddingBottom:10, borderBottomWidth:1, borderBottomColor:"rgba(200,200,200,1)", borderBottomStyle:"solid"}}>
               <div style={{marginLeft:10}}>Contact</div>
             </div>
-            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "email", this)} placeHolder={this.props.accountState.email ? this.props.accountState.email : "Email"} value={this.props.accountState.email} heightSize={1}/>
-            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "phone", this)} placeHolder={this.props.accountState.phone ? this.props.accountState.phone : "Phone"} value={this.props.accountState.phone} heightSize={1}/>
-            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "adresse", this)} placeHolder={this.props.accountState.adresse ? this.props.accountState.adresse : "Adresse"} value={this.props.accountState.adresse} heightSize={2}/>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "email", this)} placeHolder={"email"} placeHolderValue={this.props.accountState.email ? this.props.accountState.email : ""} value={this.props.accountState.email} heightSize={1}/>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "phone", this)} placeHolder={"phone"} placeHolderValue={this.props.accountState.phone ? this.props.accountState.phone : ""} value={this.props.accountState.phone} heightSize={1}/>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "adresse", this)} placeHolder={"address"} placeHolderValue={this.props.accountState.adresse ? this.props.accountState.adresse : ""} value={this.props.accountState.adresse} heightSize={2}/>
           </div>
 
           <div style={{paddingBottom:30,width: '100%', display: 'flex', flexDirection: 'column', flexWrap:'wrap', marginTop:10, alignItems:"flex-start", overflowX:"hidden", overflowY:"auto", backgroundColor:theme.background.element2.interior, color:theme.background.element2.color}}>

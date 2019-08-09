@@ -13,6 +13,7 @@ import Settings from './Settings';
 import Movies from '../Assets/movies';
 import Favourites from './Favourites';
 import WatchLater from './WatchLater';
+import Spinner from 'react-activity/lib/Spinner';
 import { connect } from "react-redux";
 import { addCategory } from "../Actions/index";
 import { addKeyword } from "../Actions/index";
@@ -34,6 +35,8 @@ import { listOfGenres } from '../API/TMDBAPI';
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { displayLoading } from "../Actions/index";
+import { connectAccount } from "../Actions/index";
 
 import API from '../Utils/API';
 import ThemesItems from '../Utils/Themes';
@@ -54,10 +57,14 @@ function mapDispatchToProps(dispatch) {
     addCategory: (article) => dispatch(addCategory(article)),
     addKeyword: (article) => dispatch(addKeyword(article)),
     changeAccountState: (article) => dispatch(changeAccountState(article)),
+    displayLoading: (boolean) => dispatch(displayLoading(boolean)),
+    connect: (boolean) => dispatch(connectAccount(boolean)),
     //resetCategories: () => dispatch(resetCategories()),
     categorySelectedRedux:dispatch.categorySelectedRedux,
     keyWordSelectedRedux:dispatch.keyWordSelectedRedux,
     accountStateRedux:dispatch.accountStateRedux,
+    displayLoadingRedux:dispatch.displayLoadingRedux,
+    connectedRedux:dispatch.connectedRedux,
   };
 };
 
@@ -100,11 +107,12 @@ class DisplayCard extends Component {
       pageMoviesRecent : 2,
       pageMoviesUpcoming : 2,
       pageMoviesTopRated : 2,
+      connect:false,
     }
   }
 
-  componentWillMount = () => {
-
+  componentDidMount = () => {
+    this.props.displayLoading(false)
     getPopularFilmsFromApi(1).then(data => {
       if(data){
         this.setState({
@@ -138,6 +146,11 @@ class DisplayCard extends Component {
     console.log("forceUpdate")
 
   }
+
+
+
+
+
 
   changeAccountState = (throwsearchNowInCinemas) => {
 
@@ -251,11 +264,13 @@ class DisplayCard extends Component {
     }else{
       getFilmsFromApiWithSearchedText(this.state.filmResearched, this.state.pageLoadFilmsBySearch).then(data => {
         data.results = this.checkIfListIsFavouriteOrToWatch(data.results)
-        if(data.results.length>0){
-          this.setState({
-            moviesSelected : this.state.moviesSelected.concat(data.results),
-            pageLoadFilmsBySearch:this.state.pageLoadFilmsBySearch+1
-          })
+        if(data.results){
+          if(data.results.length>0){
+            this.setState({
+              moviesSelected : this.state.moviesSelected.concat(data.results),
+              pageLoadFilmsBySearch:this.state.pageLoadFilmsBySearch+1
+            })
+          }
         }
       })
     }
@@ -372,15 +387,17 @@ class DisplayCard extends Component {
     for(var i = 0;i<watchLaterStock.length;i++){
       listOfIdToWatch[watchLaterStock[i].id] = i
     }
-    for(var j=0;j<data.length;j++){
-      if(listOfIdFavourite[data[j].id]>=0){
-        data[j].inToFavourites = true
+    if(data){
+      for(var j=0;j<data.length;j++){
+        if(listOfIdFavourite[data[j].id]>=0){
+          data[j].inToFavourites = true
+        }
+        if(listOfIdToWatch[data[j].id]>=0){
+          data[j].inToWatch = true
+        }
       }
-      if(listOfIdToWatch[data[j].id]>=0){
-        data[j].inToWatch = true
-      }
+      return data
     }
-    return data
   }
 
   setSectionRef = (el) => {
@@ -676,54 +693,54 @@ class DisplayCard extends Component {
   }
 
 
+  _displayLoading() {
+    var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
+    if (this.props.displayLoadingBoolean) {
+      return (
+        <div style={{width:"100vw", height:"100vh", position:"absolute", zIndex:10000, backgroundColor:"rgba(255,255,255,0.7)", top:0, left:0, display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center"}}>
+          <Spinner color="#000000" size={32} />
+        </div>
+      )
+    }
+  }
 
+  connect = () => {
+    console.log("connected")
+    this.props.connect(true)
+  }
+
+  disconnect = () => {
+    console.log("disconnected")
+    this.props.connect(false)
+  }
 
 
 
 
   render() {
+
     var tabOfCategories = [];
     var categories = {};
     const SEARCH = require('../Assets/images/search.png');
     const MOVIEACTION = require('../Assets/images/movieAction.png');
     var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
 
-    const responsive = {
-        desktop: {
-          breakpoint: { max: 3000, min: 1024 },
-          items: 5,
-          slidesToSlide: 2, // optional, default to 1.
-          paritialVisibilityGutter: -5 // this is needed to tell the amount of px that should be visible.
-        },
-        tablet: {
-          breakpoint: { max: 1024, min: 464 },
-          items: 2,
-          slidesToSlide: 2, // optional, default to 1.
-        },
-        mobile: {
-          breakpoint: { max: 464, min: 0 },
-          items: 1,
-          slidesToSlide: 1, // optional, default to 1.
-        },
-      };
-
-
-
     return (
       <div>
         <YolanHeader/>
+        {this._displayLoading()}
         <Router style={{display:'flex', flexDirection:'row', width:"100%", height:"100%"}}>
           <div  style={{display:'flex', flexDirection:'row',borderStyle: 'solid',borderWidth: 0,borderColor: 'black',  height:"95vh",overflow:'hidden',marginTop:'5vh'}}>
               <div style={{display:'flex',  flexDirection:'column',width:'25vw',  maxWidth:'25vw',  minWidth:'25vw', marginTop:0,alignItems:'center', backgroundColor:theme.background.element3.interior}}>
-                <a class="Home"  href=""  onClick={this.goHome} style={{marginBottom:50,textDecoration: 'none' ,color:'black',cursor : 'pointer',width:'100%', display:'flex',flexDirection:'row',alignItems:'center',ustifyContent:'space-evenly'}}>
+                <a className="Home"  href=""  onClick={this.goHome} style={{marginBottom:50,textDecoration: 'none' ,color:'black',cursor : 'pointer',width:'100%', display:'flex',flexDirection:'row',alignItems:'center',ustifyContent:'space-evenly'}}>
                     <div style={{width:"50%", marginLeft:"25%", height:100, marginTop:50, backgroundColor:theme.bouton.element4.interior, display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
                       <div style={{width:50, height:50, backgroundImage: "url("+ MOVIEACTION +")", cursor:'pointer', backgroundSize: 'cover'}}></div>
                       <div style={{marginTop:50, marginBottom:50, fontSize:20}}>A MOVIE DISPLAYER</div>
                     </div>
                 </a>
                 {/*Reaserch_byName*/}
-                <Link to="/home" style={{ textDecoration: 'none', width:"90%", marginLeft:"15%" }} draggable="false">
-                  <div class="Reaserch_Film" style={{width:'85%', height : 35, borderRadius:4, color:theme.bouton.element1.color, backgroundColor:theme.bouton.element1.interior, display:'flex', flexDirection:'row', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'space-between'}}>
+                <Link to="/movies-displayer/welcome" style={{ textDecoration: 'none', width:"90%", marginLeft:"15%" }} draggable="false">
+                  <div className="Reaserch_Film" style={{width:'85%', height : 35, borderRadius:4, color:theme.bouton.element1.color, backgroundColor:theme.bouton.element1.interior, display:'flex', flexDirection:'row', borderStyle: 'solid', borderColor:'rgba(18,137,54)', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'space-between'}}>
                     <input style={{width:'100%', border: 0, marginLeft:15, boxShadow: 'none', outline:'none', color:theme.background.element2.color, backgroundColor:'rgba(0,0,0,0)'}} type="text" name="name" value={this.state.filmResearched} onChange={this.handleChangeSearch} onKeyDown={this.enterToSubmit} placeholder = "Search Movie"/>
                     <div  onClick={this.loadFilmsBySearch} style={{paddingRight:5, width:30, height:30, overflow:'hidden', backgroundImage: "url("+ SEARCH +")", cursor:'pointer', backgroundSize: 'cover',}}>
                     </div>
@@ -769,17 +786,21 @@ class DisplayCard extends Component {
                       <div style={{ width:"20vw", height:0, marginTop:0, marginRight:0,  display: 'flex', flexDirection: 'column',  borderStyle: 'solid', borderWidth: 0, borderColor: 'black', backgroundColor:'rgba(0,0,0,0)'}}>
                         <div style={{ width:'100%', height:'100%', marginTop:0,  display: 'flex', flexDirection: 'row',justifyContent:'center',justifyContent:'space-between'}}>
                           <div style={{ width:"100%", minWidth:150, height:'16vh', marginTop:0,  display: 'flex', flexDirection: 'column', justifyContent:'space-between', backgroundColor:'rgba(0,0,0,0)'}}>
-                            <Route exact path="/" component={NoAccount}/>
-                            <PrivateRoute path='/favourites' component={Dashboard} />
-                            <PrivateRoute path='/home' component={Dashboard}/>
-                            <PrivateRoute path='/watchLater' component={Dashboard}/>
-                            <PrivateRoute path='/settings' component={Dashboard}/>
+                            {this.props.connected ?
+                              <Route path='/movies-displayer'
+                                render={(props) => <Dashboard {...props}
+                                disconnect={this.disconnect}
+                                />}
+                              />
+                              :
+                              <NoAccount connect={this.connect}/>
+                            }
                           </div>
                         </div>
                       </div>
 
                     </div>
-                      <Link to="/home" style={{ textDecoration: 'none' }}>
+                      <Link to="/movies-displayer/welcome" style={{ textDecoration: 'none' }}>
                         <div style={{width:"100%", height:50, display:"flex", flexDirection:'row', justifyContent:"space-between",alignItems:"center", fontSize:23, marginTop:0, color:theme.background.element1.color, backgroundColor:theme.background.element1.interior}}>
                           <div onClick={this.goHome} style={{marginLeft:20, marginRight:40, width:"100%", textAlign: "center", cursor:"pointer", color:this.state.colorOngletHome?theme.bouton.element5.interior:theme.bouton.element5.color, borderRadius:10, borderStyle:"solid", borderWidth:1, borderColor:this.state.colorOngletHome?theme.bouton.element5.interior:theme.bouton.element5.color, backgroundColor:theme.bouton.element4.interior}}>Home
                           </div>
@@ -789,31 +810,12 @@ class DisplayCard extends Component {
                           </div>
                           <div onClick={this.searchPopular} style={{marginLeft:40, marginRight:40, textAlign: "center", width:"100%", cursor:"pointer", color:this.state.colorOngletPopular?theme.bouton.element5.interior:theme.bouton.element5.color, borderRadius:10, borderStyle:"solid", borderWidth:1, borderColor:this.state.colorOngletPopular?theme.bouton.element5.interior:theme.bouton.element5.color, backgroundColor:theme.bouton.element4.interior}}>Popular
                           </div>
-                          <div onClick={this.searchUpcoming} style={{marginLeft:40, marginRight:40, textAlign: "center", width:"100%", cursor:"pointer", color:this.state.colorOngletPopular?theme.bouton.element5.interior:theme.bouton.element5.color, borderRadius:10, borderStyle:"solid", borderWidth:1, borderColor:this.state.colorOngletPopular?theme.bouton.element5.interior:theme.bouton.element5.color, backgroundColor:theme.bouton.element4.interior}}>Coming Soon
+                          <div onClick={this.searchUpcoming} style={{marginLeft:40, marginRight:40, textAlign: "center", width:"100%", cursor:"pointer", color:this.state.colorOngletUpcoming?theme.bouton.element5.interior:theme.bouton.element5.color, borderRadius:10, borderStyle:"solid", borderWidth:1, borderColor:this.state.colorOngletUpcoming?theme.bouton.element5.interior:theme.bouton.element5.color, backgroundColor:theme.bouton.element4.interior}}>Coming Soon
                           </div>
                         </div>
                       </Link>
 
-                      <Route exact path="/"
-                        render={(props) => <ResearchResults {...props}
-                        id="researchResult1"
-                        currentReseachInAction={this.state.currentReseachInAction}
-                        moviesPopular = {this.state.moviesPopular}
-                        moviesRecent = {this.state.moviesRecent}
-                        moviesUpcoming = {this.state.moviesUpcoming}
-                        moviesTopRated = {this.state.moviesTopRated}
-                        moviesSelected = {this.state.moviesSelected}
-                        impossibleToFindMovie = {this.state.impossibleToFindMovie}
-                        impossibleToFindMovieWithFilter = {this.state.impossibleToFindMovieWithFilter}
-                        filmResearched = {this.state.filmResearched}
-                        toggleInToFavourites = {(movie)=> this.toggleInToFavourites(movie, this)}
-                        toggleInToWatchList = {(movie) => this.toggleInToWatchList(movie, this)}
-                        togglePopup = {this.togglePopup}
-                        setSectionRef = {this.setSectionRef}
-                        extendResearch={this.extendResearch}
-                        />}
-                      />
-                      <Route path='/home'
+                      <Route exact path='/movies-displayer/welcome'
                         render={(props) => <ResearchResults {...props}
                         id="researchResult2"
                         currentReseachInAction={this.state.currentReseachInAction}
@@ -832,7 +834,28 @@ class DisplayCard extends Component {
                         extendResearch={this.extendResearch}
                         />}
                       />
-                      <Route exact path='/settings'
+
+                      <Route exact path='/movies-displayer'
+                        render={(props) => <ResearchResults {...props}
+                        id="researchResult2"
+                        currentReseachInAction={this.state.currentReseachInAction}
+                        moviesPopular = {this.state.moviesPopular}
+                        moviesRecent = {this.state.moviesRecent}
+                        moviesUpcoming = {this.state.moviesUpcoming}
+                        moviesTopRated = {this.state.moviesTopRated}
+                        moviesSelected = {this.state.moviesSelected}
+                        impossibleToFindMovie = {this.state.impossibleToFindMovie}
+                        impossibleToFindMovieWithFilter = {this.state.impossibleToFindMovieWithFilter}
+                        filmResearched = {this.state.filmResearched}
+                        toggleInToFavourites = {(movie)=> this.toggleInToFavourites(movie, this)}
+                        toggleInToWatchList = {(movie) => this.toggleInToWatchList(movie, this)}
+                        togglePopup = {this.togglePopup}
+                        setSectionRef = {this.setSectionRef}
+                        extendResearch={this.extendResearch}
+                        />}
+                      />
+
+                      <Route exact path='/movies-displayer/settings'
                       render={(props) => <Settings {...props}
                       toggleInToFavourites={(movie)=> this.toggleInToFavourites(movie, this)}
                       toggleInToWatchList={(movie) => this.toggleInToWatchList(movie, this)}
@@ -841,7 +864,7 @@ class DisplayCard extends Component {
 
 
                       {this.props.accountState.favourites ?
-                        <Route exact path='/favourites'
+                        <Route exact path='/movies-displayer/favourites'
                           render={(props) => <Favourites {...props}
                           toggleInToFavourites={(movie)=> this.toggleInToFavourites(movie, this)}
                           toggleInToWatchList={(movie) => this.toggleInToWatchList(movie, this)}
@@ -851,7 +874,7 @@ class DisplayCard extends Component {
                         : null
                       }
                       {this.props.accountState.watchLater ?
-                        <Route exact path='/watchLater'
+                        <Route exact path='/movies-displayer/watchLater'
                           render={(props) => <WatchLater {...props}
                           toggleInToFavourites={(movie)=> this.toggleInToFavourites(movie, this)}
                           toggleInToWatchList={(movie) => this.toggleInToWatchList(movie, this)}
@@ -865,6 +888,7 @@ class DisplayCard extends Component {
               </div>
             </div>
         </Router>
+
       </div>
     )
   }
@@ -887,6 +911,8 @@ const mapStateToProps = (state) => {
     categorySelected:state.categorySelectedRedux,
     keywordSelected:state.keyWordSelectedRedux,
     accountState:state.accountStateRedux,
+    displayLoadingBoolean:state.displayLoadingRedux,
+    connected:state.connectedRedux,
   }
 }
 

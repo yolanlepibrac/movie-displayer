@@ -5,3 +5,5 @@ export const ADD_KEYWORD = "ADD_KEYWORD";
 export const RESET_CATEGORY = "RESET_CATEGORY";
 export const SET_USEREMAIL = "SET_USEREMAIL";
 export const SET_ACCOUNTSTATE = "SET_ACCOUNTSTATE";
+export const DISPLAY_LOADING = "DISPLAY_LOADING";
+export const CONNECT = "CONNECT";

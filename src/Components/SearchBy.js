@@ -88,7 +88,7 @@ class SearchBy extends Component {
 
     return(
 
-      <div class="Reaserch_Element"  style={{width:'85%'}} onKeyDown={this.enterToSubmit} onBlur={this.onBlurElement}>
+      <div className="Reaserch_Element"  style={{width:'85%'}} onKeyDown={this.enterToSubmit} onBlur={this.onBlurElement}>
 
           <div  style={{width:'100%', maxWidth:'100%', minHeight : 35, marginTop:20, borderRadius:4, color:this.props.theme.bouton.element1.color, backgroundColor:this.props.theme.bouton.element1.interior, display:'flex', flexDirection:'row', flexWrap:'wrap', borderStyle: 'solid', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent:'flex-start', alignItems:'center'}}>
             {this.props.ReduxStoreOfElements ? this.props.ReduxStoreOfElements.map(

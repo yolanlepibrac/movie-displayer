@@ -1,8 +1,15 @@
 import axios from 'axios';
 const headers = {
-    'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+
 }
-const burl = "http://localhost:8000"
+
+//const burl = "http://localhost:8000"
+const burl = "https://movies-displayer.herokuapp.com"
+//const burl = "http://yolan-pibrac.com"
+//const burl = "http://yolan-pibrac.com/movies-displayer"
+//const burl = ""
 
 export default {
     login : function(email,password) {

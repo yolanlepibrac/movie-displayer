@@ -1,13 +1,24 @@
 import React, { Component } from 'react';
 import posed from 'react-pose';
-import { listOfGenres } from '../API/TMDBAPI'
+import { listOfGenres } from '../API/TMDBAPI';
+
+import { changeAccountState } from "../Actions/index";
+import { connect } from "react-redux";
 
 const widthLikeBar = 200;
 const heightRatio = 20;
 const timerAnimation = 200;
 
+function mapDispatchToProps(dispatch) {
+  return {
+    changeAccountState: (article) => dispatch(changeAccountState(article)),
+    accountStateRedux:dispatch.accountStateRedux,
+    connectedRedux:dispatch.connectedRedux,
+  };
+};
 
-export default class Card extends Component {
+
+export class CardComponent extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -82,3 +93,14 @@ let styles = {
       marginLeft:10
     }
 }
+
+
+const mapStateToProps = (state) => {
+  return {
+    accountState:state.accountStateRedux,
+    connected:state.connectedRedux,
+  }
+}
+
+const Card = connect(mapStateToProps, mapDispatchToProps)(CardComponent);
+export default Card;

@@ -3,12 +3,16 @@ import { ADD_KEYWORD } from "../Constants/action-types";
 import { RESET_CATEGORY } from "../Constants/action-types";
 import { SET_USEREMAIL } from "../Constants/action-types";
 import { SET_ACCOUNTSTATE } from "../Constants/action-types";
+import { DISPLAY_LOADING } from "../Constants/action-types";
+import { CONNECT } from "../Constants/action-types";
 
 const initialState = {
   categorySelectedRedux: [],
   keyWordSelectedRedux: [],
   userEmailRedux : "myEmail",
   accountStateRedux:{"sizeCard":1},
+  displayLoadingRedux:true,
+  connectedRedux:false,
 };
 
 
@@ -43,13 +47,31 @@ function rootReducer(state = initialState, action) {
 
 }else if (action.type === RESET_CATEGORY) {
     state.keyWordSelectedRedux = [];
+
 }else if (action.type === SET_ACCOUNTSTATE) {
   let nextState
     nextState = {
       ...state,
-      accountStateRedux: action.accountState
+      accountStateRedux: action.accountState,
+      displayLoadingRedux: false
     }
     localStorage.setItem("userData" , JSON.stringify(action.accountState))
+  return nextState || state
+
+}else if (action.type === DISPLAY_LOADING) {
+  let nextState
+    nextState = {
+      ...state,
+      displayLoadingRedux: action.displayLoading
+    }
+  return nextState || state
+}else if (action.type === CONNECT) {
+  let nextState
+    nextState = {
+      ...state,
+      connectedRedux: action.connected
+    }
+    console.log(action.connected)
   return nextState || state
 }
 
