@@ -319,7 +319,7 @@ export default class MovieDetail extends Component {
   }
 
   render() {
-    if (!isMobile) {
+    if (isMobile) {
       return (
         <div style={{ display: 'flex',flexDirection: 'row',flexWrap: 'wrap',}}>
           {this._displayLoading()}
