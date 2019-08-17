@@ -987,6 +987,7 @@ class DisplayCard extends Component {
     var categories = {};
     const SEARCH = require('../Assets/images/search.png');
     const MOVIEACTION = require('../Assets/images/movieAction.png');
+    const QUIT = require('../Assets/images/quit.png');
     var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
 
     return (
@@ -994,7 +995,7 @@ class DisplayCard extends Component {
       <div style={{height:"100vh", overflow:"hidden", backgroundColor:theme.background.element1.interior}}>
         <YolanHeader fontSize={12}/>
         <div onClick={this.toggleResearch} style={{zIndex:10, position:"absolute",display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", bottom:20, right:20, width:50, height:50, backgroundColor:theme.bouton.element3.interior, borderWidth:1, borderRadius:"50%", borderStyle:"solid", borderColor:"black", cursor:"pointer"}}>
-          <div style={{backgroundImage: "url("+ SEARCH +")", backgroundSize: 'cover', width:30, height:30}}>
+          <div style={{backgroundImage: this.state.displayResearch ? "url("+ QUIT +")" : "url("+ SEARCH +")", backgroundSize: 'cover', width:30, height:30}}>
           </div>
         </div>
         {this.state.displayResearch ?
