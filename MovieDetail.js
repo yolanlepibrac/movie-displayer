@@ -205,7 +205,7 @@ export default class MovieDetail extends Component {
     const film = this.props.filmDetail;
     const widthLikeBar = 500;
     const heightRatio = 20;
-    if (this.state.film != undefined) {
+    if (this.props.filmDetail != undefined) {
       return (
         <div style={{width:'100%', display:'flex', flexDirection:"row", overflow:"hidden", height:"75vh"}}>
 
@@ -267,27 +267,27 @@ export default class MovieDetail extends Component {
                 <div style={{width:"100%",  borderStyle:"solid", borderWidth:0.5, padding:10, }}>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Réalisateur</strong>
-                    <div>{this.state.director}</div>
+                    <div>{this.props.director}</div>
                   </div>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Scénariste</strong>
-                    <div>{this.state.scenarist}</div>
+                    <div>{this.props.scenarist}</div>
                   </div>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Production</strong>
-                    <div>{this.state.producer}</div>
+                    <div>{this.props.producer}</div>
                   </div>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Musique</strong>
-                    <div>{this.state.musicEditor}</div>
+                    <div>{this.props.musicEditor}</div>
                   </div>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Direction Artistique</strong>
-                    <div>{this.state.artisticDirector}</div>
+                    <div>{this.props.artisticDirector}</div>
                   </div>
                   <div style={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                     <strong>Direction photo</strong>
-                    <div>{this.state.photographyDirector}</div>
+                    <div>{this.props.photographyDirector}</div>
                   </div>
 
                 </div>
@@ -304,8 +304,8 @@ export default class MovieDetail extends Component {
               <div style={{width:"100%",   display:"flex", flexDirection:"column",   marginBottom:50, marginTop:10}}>
                 <strong>Similar moovies</strong>
                 <div style={{display:"flex", flexDirection:"row", overflowX:"auto", height:"100%", marginTop:10}}>
-                  {this.state.similarMovies.length >0 ?
-                    this.state.similarMovies.map((movie) => (this.renderSimilarMoovies(movie)))
+                  {this.props.similarMovies.length >0 ?
+                    this.props.similarMovies.map((movie) => (this.renderSimilarMoovies(movie)))
                     :
                     <div></div>
                   }
@@ -319,7 +319,7 @@ export default class MovieDetail extends Component {
   }
 
   render() {
-    if (isMobile) {
+    if (!isMobile) {
       return (
         <div style={{ display: 'flex',flexDirection: 'row',flexWrap: 'wrap',}}>
           {this._displayLoading()}
