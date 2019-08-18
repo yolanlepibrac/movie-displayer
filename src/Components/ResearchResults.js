@@ -186,8 +186,9 @@ class ResearchResultsComponent extends React.Component {
 
   render(){
     var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
+    //
     return(
-      <div style={{width: '100%', display: 'flex', flexDirection: 'row', flexWrap:'wrap', overflowY: 'auto', paddingTop:25, backgroundColor:theme.background.element1.interior}} ref={this.getSectionRef} id="researchResult">
+      <div style={{"padding-right": "17px","box-sizing": "content-box",  overflowY:"auto", width: '100%',  display: 'flex', flexDirection: 'row', flexWrap:'wrap', paddingTop:25, backgroundColor:theme.background.element1.interior}} ref={this.getSectionRef} id="researchResult">
         {!this.props.currentReseachInAction ?
           <div style={{width: '100%', display: 'flex', flexDirection: 'row', flexWrap:'wrap'}}>
             {this.props.moviesPopular ?

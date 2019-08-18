@@ -45,15 +45,16 @@ export class LoginComponent extends React.Component {
         if(this.state.password.length === 0){
             return;
         }
-
+        context.props.displayLoading(true)
         API.login(this.state.email, this.state.password, context).then(function(data){
-            context.props.displayLoading(true)
+
             API.getUserData(context.state.email).then(function(data2){
               localStorage.setItem('userData', JSON.stringify(data2.data.userData));
               localStorage.setItem('email', context.state.email);
               localStorage.setItem('token', data.data.token);
               context.props.changeAccountState(data2.data.userData);
               context.props.connect()
+              context.props.displayLoading(false)
             })
 
 
@@ -81,25 +82,22 @@ export class LoginComponent extends React.Component {
                 </div>
                 : null
               }
-              <FormGroup controlId="email" bsSize="small">
-                <div>Email</div>
-                <FormControl autoFocus type="email" value={this.state.email} onChange={this.handleChange}/>
-              </FormGroup>
-              <FormGroup controlId="password" bsSize="small">
-                <div>Password</div>
-                <FormControl value={this.state.password} onChange={this.handleChange} type="password"/>
-              </FormGroup>
-              <Link to="/movies-displayer/welcome">
+                <FormGroup controlId="email" bsSize="small">
+                  <div>Email</div>
+                  <FormControl autoFocus type="email" onChange={this.handleChange}/>
+                </FormGroup>
+                <FormGroup controlId="password" bsSize="small">
+                  <div>Password</div>
+                  <FormControl  onChange={this.handleChange} type="password"/>
+                </FormGroup>
                 <Button
                   onClick={(event) => this.send(event, this)}
                   block
                   bsSize="small"
                   type="submit"
-                  style={{backgroundColor:"rgba(240,240,240,1)"}}
                 >
                 Connexion
-              </Button>
-            </Link>
+                </Button>
             </div>
         )
     }

@@ -10,6 +10,7 @@ import { DropdownMenu, MenuItem, DropdownItem, DropdownToggle } from 'react-boot
 import API from '../Utils/API';
 import ThemesItems from '../Utils/Themes';
 import { displayLoading } from "../Actions/index";
+import {BrowserView,MobileView,isBrowser,isMobile} from "react-device-detect";
 
 import { changeAccountState } from "../Actions/index";
 import { connect } from "react-redux";
@@ -169,6 +170,7 @@ class SettingsComponent extends React.Component {
   }
 
   validateSizeCard = () => {
+    this.props.displayLoading(true)
     this.setToDatabase(this.state.sizeCard, "sizeCard", this);
     this.setState({
       modifyingSizeCard : false
@@ -194,6 +196,7 @@ class SettingsComponent extends React.Component {
           API.getUserData(data.data.userData.email).then(function(data2){
               context.props.changeAccountState(data2.data.userData);
               console.log(data2.data.userData)
+              context.props.displayLoading(false)
             })
           localStorage.setItem("email", value)
         })
@@ -202,6 +205,7 @@ class SettingsComponent extends React.Component {
           API.getUserData(data.data.email).then(function(data2){
               context.props.changeAccountState(data2.data.userData);
               localStorage.setItem("userData", JSON.stringify(data2.data.userData))
+              context.props.displayLoading(false)
             })
         })
       }
@@ -214,11 +218,13 @@ class SettingsComponent extends React.Component {
   }
 
   setSexFemale = (e) => {
+    this.props.displayLoading(true)
     window.$("#female").prop("checked", true)
     this.setToDatabase("female", "sex", this)
   }
 
   setSexMale = (e) => {
+    this.props.displayLoading(true)
     window.$("#male").prop("checked", true);
     this.setToDatabase("male", "sex", this)
   }
@@ -277,17 +283,14 @@ class SettingsComponent extends React.Component {
   }
 
 
-
-  render(){
+  renderComputer = () => {
     let listeOfDate = []
     var currentYear = new Date().getFullYear()
     for(var i=currentYear;i>1930;i--){
       listeOfDate.push(i)
     }
-
     var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
-
-    return(
+    return (
       <div style={{display:"flex", flexDirection:"column", backgroundColor:theme.background.element1.interior, alignItems:"center", paddingBottom:50, paddingTop:2, overflowY:"auto",}}>
         <div style={{height:"100%", width:"70%"}}>
           <h5>SETTINGS</h5>
@@ -421,6 +424,158 @@ class SettingsComponent extends React.Component {
         </div>
       </div>
     )
+  }
+
+
+
+  renderMobile = () => {
+    let listeOfDate = []
+    var currentYear = new Date().getFullYear()
+    for(var i=currentYear;i>1930;i--){
+      listeOfDate.push(i)
+    }
+    var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];
+    return (
+      <div style={{display:"flex", flexDirection:"column", backgroundColor:theme.background.element1.interior, alignItems:"center", paddingBottom:50, paddingTop:2, overflowY:"auto",}}>
+        <div style={{height:"100%", width:"95%"}}>
+          <h5>SETTINGS</h5>
+          <div style={{paddingBottom:30, width: '100%', display: 'flex', flexDirection: 'column', flexWrap:'wrap', marginTop:10, marginBottom:10, alignItems:"flex-start", overflowX:"hidden", backgroundColor:theme.background.element2.interior, color:theme.background.element2.color}}>
+            <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems:"flex-start",  paddingTop:10, paddingBottom:10, borderBottomWidth:1, borderBottomColor:"rgba(200,200,200,1)", borderBottomStyle:"solid"}}>
+              <div style={{marginLeft:10}}>Profile</div>
+            </div>
+
+
+            <div style={{width:"100%", height:"100%", display:"flex", flexDirection:"column", paddingTop:20, paddingLeft:20}}>
+              <div style={{width:250, height:250, paddingTop:25, paddingLeft:20, display: 'flex', flexDirection: 'column', alignItems:"flex-start",}}>
+                <strong style={{width: 200, textAlign:"left", fontSize:13, marginBottom:10}}>Profile Picture</strong>
+                <label for="file-input">
+                  {this.props.accountState.imageProfil ?
+                    <img width="160" height="160" src={this.props.accountState.imageProfil} style={{cursor:"pointer", borderWidth:0, borderStyle:"solid", borderRadius:"10%"}}/>
+                    :
+                    <img width="160" height="160" src={require('../Assets/images/connectBig.png')} style={{cursor:"pointer", borderWidth:1, borderStyle:"solid", borderRadius:"10%"}}/>
+                  }
+                </label>
+              </div>
+              <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "name", this)} placeHolder={"name"} placeHolderValue={this.props.accountState.name ? this.props.accountState.name : ""} value={this.props.accountState.name}  heightSize={1}/>
+              <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "userName", this)} placeHolder={"user name"} placeHolderValue={this.props.accountState.userName ? this.props.accountState.userName : ""} value={this.props.accountState.userName}  heightSize={1}/>
+              <div style={{width:"100%", display : "flex", flexDirection:"column", paddingLeft:20, marginBottom:20}}>
+                <strong style={{width: 200, textAlign:"left", fontSize:13}}>Birth</strong>
+                <div style={{width:"100%", display : "flex", flexDirection:"column", alignItems:"left"}}>
+                    <button style={{width:100, backgroundColor:"rgba(245,245,245,1)", color:"black", height:30, fontSize:15, padding:0, margin:0}} class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {this.props.accountState.birthYear ? this.props.accountState.birthYear : "Year"}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style={{height:200, overflow:"auto"}}>
+                      {listeOfDate.map((year)=>this.returnItemList(year, "birthYear"))}
+                    </div>
+                    <button style={{width:100, backgroundColor:"rgba(245,245,245,1)", color:"black", height:30, fontSize:15, padding:0, margin:0}} class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {this.props.accountState.birthMonth ? this.props.accountState.birthMonth : "Month"}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{height:200, overflow:"auto"}}>
+                      {Months.map((month)=>this.returnItemList(month, "birthMonth"))}
+                    </div>
+                    <button style={{width:100, backgroundColor:"rgba(245,245,245,1)", color:"black", height:30, fontSize:15, padding:0, margin:0}} class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {this.props.accountState.birthDay ? this.props.accountState.birthDay : "Day"}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{height:200, overflow:"auto"}}>
+                      {this.state.tabOfDay.map((day)=>this.returnItemList(day, "birthDay"))}
+                    </div>
+                </div>
+              </div>
+              <div style={{width:"100%", height:"100%", display:"flex", flexDirection:"row", marginLeft:20, fontSize:14}}>
+                <div class="custom-control custom-radio custom-control-inline" onClick={this.setSexFemale}>
+                  <input type="radio" id="female" name="gender" class="custom-control-input"/>
+                  <label class="custom-control-label" for="customRadioInline1" style={{cursor:"pointer"}}><strong>Female</strong></label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline" onClick={this.setSexMale}>
+                  <input type="radio" id="male" name="gender" class="custom-control-input"/>
+                  <label class="custom-control-label" for="customRadioInline2" style={{cursor:"pointer"}}><strong>Male</strong></label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style={{paddingBottom:30,width: '100%', display: 'flex', flexDirection: 'column', flexWrap:'wrap', marginTop:10, alignItems:"flex-start", overflowX:"hidden", overflowY:"auto", backgroundColor:theme.background.element2.interior, color:theme.background.element2.color}}>
+            <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems:"flex-start",  paddingTop:10, paddingBottom:10, borderBottomWidth:1, borderBottomColor:"rgba(200,200,200,1)", borderBottomStyle:"solid"}}>
+              <div style={{marginLeft:10}}>Contact</div>
+            </div>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "email", this)} placeHolder={"email"} placeHolderValue={this.props.accountState.email ? this.props.accountState.email : ""} value={this.props.accountState.email} heightSize={1}/>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "phone", this)} placeHolder={"phone"} placeHolderValue={this.props.accountState.phone ? this.props.accountState.phone : ""} value={this.props.accountState.phone} heightSize={1}/>
+            <ItemEditProfile onSubmit={(value)=>this.setToDatabase(value, "adresse", this)} placeHolder={"address"} placeHolderValue={this.props.accountState.adresse ? this.props.accountState.adresse : ""} value={this.props.accountState.adresse} heightSize={2}/>
+          </div>
+
+          <div style={{paddingBottom:30,width: '100%', display: 'flex', flexDirection: 'column', flexWrap:'wrap', marginTop:10, alignItems:"flex-start", overflowX:"hidden", overflowY:"auto", backgroundColor:theme.background.element2.interior, color:theme.background.element2.color}}>
+            <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems:"flex-start",  paddingTop:10, paddingBottom:10, borderBottomWidth:1, borderBottomColor:"rgba(200,200,200,1)", borderBottomStyle:"solid"}}>
+              <div style={{marginLeft:10}}>Security</div>
+            </div>
+            <div style={{display:"flex", flexDirection:"column", alignItems:"flex-start", marginLeft:20, marginBottom:5, marginTop:5}}>
+              <strong style={{width: 200, textAlign:"left", fontSize:13}}>{"Password"}</strong>
+              <div style={{width: 800, display: 'flex', flexDirection: 'column', alignItems:"left", marginBottom:5, marginTop:5, fontSize:15, justifyContent:"flex-start", marginLeft:0, marginRight:0,}}>
+                <div style={{width: 200, height:30*this.props.heightSize, textAlign:"left", display: 'flex', flexDirection: 'column', justifyContent:"center", backgroundColor:"rgba(245,245,245,1)", borderRadius:3, paddingLeft:20, marginRight:20, color:"black", borderWidth:1, borderStyle:"solid", borderColor:"rgba(150,150,150,1)"}}>
+                {"•••••••••"}
+              </div>
+              <button style={{width: 200, height:30, fontSize:16, textAlign:"center", justifyContent:"flex-start", marginLeft:0, padding:0, color:"white", borderWidth:0}} type="button" class="btn btn-secondary btn-lg" onClick={this.changePassword}>Modifie</button>
+              </div>
+            </div>
+          </div>
+
+
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', flexWrap:'wrap', marginTop:10, alignItems:"flex-start", overflowX:"hidden", overflowY:"auto", backgroundColor:theme.background.element2.interior, color:theme.background.element2.color}}>
+            <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems:"flex-start",  paddingTop:10, paddingBottom:10, borderBottomWidth:1, borderBottomColor:"rgba(200,200,200,1)", borderBottomStyle:"solid"}}>
+              <div style={{marginLeft:10}}>General</div>
+            </div>
+
+            <div style={{display:"flex", flexDirection:"column", width:"100%"}}>
+              <div>
+                <label for="formControlRange">THEMES</label>
+                <div style={{display:"flex", width:"100%", flexDirection:"row", flexWrap:"wrap"}}>
+                {ThemesItems.map((theme)=><BoutonTheme theme={theme} chooseTheme={this.chooseTheme} themeSelected={this.props.accountState.theme}/>)}
+                </div>
+              </div>
+
+              <div style={{width: '50%', display: 'flex', flexDirection: 'column', alignItems:"flex-start", marginLeft:50}}>
+                <label style={{marginLeft:30}} for="formControlRange">CARDS SIZE</label>
+                <div style={{width: '100%', display: 'flex', flexDirection: 'row', alignItems:"center", marginBottom:20}}>
+                  {this.state.modifyingSizeCard ?
+                    <SliderSizeCard setValue={this.setValue} onClick={this.validateSizeCard}/>
+                    :
+                    <div>
+                      <button onClick={() => this.modifieSizeCard(this.setPositionOfCursorSizeCard)} onMouseEnter={this.toggleBackgroundModifyButton} onMouseLeave={this.toggleBackgroundModifyButton} style={{width: 200*this.props.accountState.sizeCard, height:30, fontSize:16, textAlign:"center", justifyContent:"flex-start", marginLeft:20, padding:0, backgroundColor:this.state.backgroundModifyButton, color:"white", borderWidth:0}} type="button" class="btn btn-secondary btn-lg" >Modifie</button>
+                    </div>
+                  }
+                </div>
+                <div style={{width: 400, height:500, overflow:"hidden"}}>
+                  {this.state.popupIsActive ? <div><Popup closePopup={this.togglePopup} Id={this.state.currentMovieId} Title={this.state.currentMovieTitle}/></div> : <div></div>}
+                  <Card
+                    Movie = {MovieExemple}
+                    Size = {this.state.sizeCard}
+                    WidthCard = {200}
+                    HeightCard = {300}
+                    Src={getImageFromApi(MovieExemple.poster_path)}
+                    onClick={this.props.togglePopup}
+                    toggleInToWatchList = {this.toggleInToWatchList}
+                    toggleInToFavourites = {this.toggleInToFavourites}
+                    />
+
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+
+  render(){
+    if (isMobile) {
+      return (this.renderMobile())
+    }else{
+      return (this.renderComputer())
+    }
+
   }
 }
 

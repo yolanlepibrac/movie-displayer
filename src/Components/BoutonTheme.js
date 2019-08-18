@@ -14,12 +14,6 @@ function mapDispatchToProps(dispatch) {
 
 class BoutonThemeComponent extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-  }
-
 
   render(){
     var theme = this.props.accountState.theme ? ThemesItems[this.props.accountState.theme] : ThemesItems[0];

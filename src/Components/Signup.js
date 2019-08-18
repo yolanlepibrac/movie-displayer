@@ -54,7 +54,7 @@ export class SignupComponent extends React.Component {
         if(this.state.password.length === 0 || this.state.password !== this.state.cpassword){
             context.setState({
               impossibleToConnect : true,
-              messageError : "Carefull, your passwords does not match or are invalid"
+              messageError : "Carefull, password and confirm password does not match or are invalid"
             })
             return;
         }
@@ -63,16 +63,18 @@ export class SignupComponent extends React.Component {
             userName: this.state.userName,
             password: this.state.password
         }
+        context.props.displayLoading(true)
         API.signup(_send, context).then(function(data){
-          context.props.displayLoading(true)
           API.getUserData(context.state.email).then(function(data2){
             localStorage.setItem('userData', JSON.stringify(data2.data.userData));
             localStorage.setItem('email', context.state.email);
             localStorage.setItem('token', data.data.token);
             context.props.changeAccountState(data2.data.userData);
+            context.props.displayLoading(false)
             context.props.connect()
           })
         },function(error){
+            context.props.displayLoading(false)
             console.log(error);
             return;
         })
@@ -106,17 +108,15 @@ export class SignupComponent extends React.Component {
                   <div>Confirm Password</div>
                   <FormControl value={this.state.cpassword} onChange={this.handleChange} type="password"/>
                 </FormGroup>
-                <Link to="/movies-displayer/welcome">
                   <Button
-                  onClick={(event) => this.send(event, this)}
-                  block
-                  bsSize="small"
-                  type="submit"
-                  style={{backgroundColor:"rgba(240,240,240,1)"}}
-                  >
-                  Inscription
+                    onClick={(event) => this.send(event, this)}
+                    block
+                    bsSize="small"
+                    type="submit"
+                    style={{backgroundColor:"rgba(240,240,240,1)"}}
+                    >
+                    Inscription
                   </Button>
-                </Link>
             </div>
         )
     }

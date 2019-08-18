@@ -8,11 +8,15 @@ import { PrivateRoute } from './PrivateRoute';
 
 import { changeAccountState } from "../Actions/index";
 import { connect } from "react-redux";
+import {BrowserView,MobileView,isBrowser,isMobile} from "react-device-detect";
 
 const widthLikeBar = 200;
 const heightRatio = 20;
 const timerAnimation = 200;
 const timerAnimationBarRatio = 500;
+const HEART = require('../Assets/images/heart.png')
+
+
 
 
 const BottomCard = posed.div({
@@ -119,8 +123,8 @@ export class CardComponent extends React.Component {
   }
 
 
-  displayMovieDetail = () => {
-    this.props.onClick(this.props.Movie);
+  displayMovieDetail = (e) => {
+    this.props.onClick(e, this.props.Movie);
   }
 
   onHoverCard = () => {
@@ -138,14 +142,9 @@ export class CardComponent extends React.Component {
     })
   }
 
+  renderComputer = () => {
 
-
-
-
-  render() {
-    const HEART = require('../Assets/images/heart.png')
-
-    return (
+    return(
       <div style={{width:  this.props.WidthCard*this.props.Size, height:(this.props.HeightCard+20)*this.props.Size, backgroundColor:"rgba(0,0,0,0)", marginLeft:20}}
           onMouseLeave={this.onLeaveCard} onMouseEnter={this.onHoverCard} >
           <div style={{width:  (this.props.WidthCard)*this.props.Size, height: (this.props.HeightCard-30)*this.props.Size, position:"relative"}}>
@@ -156,7 +155,7 @@ export class CardComponent extends React.Component {
               :
               null
             }
-            <div style={{width:this.props.widthCard*this.props.Size, marginLeft:0, cursor:'pointer', height:'100%', display:"flex", alignItems:"center", justifyContent:"center", backgroundColor:"rgba(250,250,250,1)"}} onClick={this.displayMovieDetail}>
+            <div style={{width:this.props.widthCard*this.props.Size, marginLeft:0, cursor:'pointer', height:'100%', display:"flex", alignItems:"center", justifyContent:"center", backgroundColor:"rgba(250,250,250,1)"}} onClick={(e)=> this.displayMovieDetail(e)}>
                 {this.props.Src != "https://image.tmdb.org/t/p/w300null" ?
                   <img src={this.props.Src} style={{width:this.props.WidthCard*this.props.Size, height:'100%'}}/>
                   :
@@ -166,7 +165,7 @@ export class CardComponent extends React.Component {
 
             <div  style={{width: '100%',display : 'flex',flexDirection : 'row',justifyContent : 'space-between',cursor:'pointer',paddingLeft : 0,paddingRight : 0, backgroundColor:"rgba(210,210,210,1)",}}>
               <div style={{position:"absolute", width: "100%", bottom : 0, left:0, height:-(this.props.HeightCard-30-150), overflow:"hidden"}}>
-                <BottomCard pose={this.state.hovered ? "hovered" : "idle"} onClick={this.displayMovieDetail}>
+                <BottomCard pose={this.state.hovered ? "hovered" : "idle"} onClick={(e)=> this.displayMovieDetail(e)}>
                   <div style={{width:"100%", height:150*this.props.Size}}>
                     <div style={{width:'100%', height:heightRatio*this.props.Size, marginBottom:10, overflow:'hidden', display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center' }}>
                       <div style={{ width:widthLikeBar*this.props.Size, display:'flex', flexDirection:'row', marginLeft:5, height:heightRatio*this.props.Size/2, justifyContent:'center', overflow:'hidden', alignItems:'center' }}>
@@ -204,6 +203,57 @@ export class CardComponent extends React.Component {
           </div>
       </div>
     )
+  }
+
+  renderMobile = () => {
+    const factorMobile = 2
+    return(
+      <div style={{width:  this.props.WidthCard*this.props.Size, height:(this.props.HeightCard+20)*this.props.Size, backgroundColor:"rgba(0,0,0,0)", marginLeft:20}}
+          onMouseLeave={this.onLeaveCard} onMouseEnter={this.onHoverCard} >
+          <div style={{width:  (this.props.WidthCard)*this.props.Size, height: (this.props.HeightCard-30)*this.props.Size, position:"relative", display:"flex", flexDirection:"column", justifyContent:"center"}}>
+            {this.props.connected ?
+              <FavouritesButton Movie={this.props.Movie}
+              toggleInToFavourites={this.props.toggleInToFavourites}
+              Size={this.props.Size*factorMobile}/>
+              :
+              null
+            }
+            <div style={{width:this.props.widthCard*this.props.Size, marginLeft:0, cursor:'pointer', height:'100%', display:"flex", alignItems:"center", justifyContent:"center", backgroundColor:"rgba(250,250,250,1)"}} onClick={(e)=> this.displayMovieDetail(e)}>
+                {this.props.Src != "https://image.tmdb.org/t/p/w300null" ?
+                  <img src={this.props.Src} style={{width:this.props.WidthCard*this.props.Size, height:'100%'}}/>
+                  :
+                  <img src="http://primusdatabase.com/images/4/49/Not_Available.png" style={{width:this.props.WidthCard*this.props.Size/2, height:this.props.WidthCard*this.props.Size/4}}/>
+                }
+            </div>
+
+            <div  style={{width: '100%',display : 'flex',flexDirection : 'row',justifyContent : 'space-between',cursor:'pointer',paddingLeft : 0,paddingRight : 0, backgroundColor:"rgba(210,210,210,1)",}}>
+              <div style={{height : 20*factorMobile, overflow : 'hidden', width:30*factorMobile }}>
+              </div>
+              <div style={{width:"100%", height : 20*this.props.Size*factorMobile, overflow : 'hidden', fontSize:13*this.props.Size, overflow:"hidden", display:"flex", marginTop:5, justifyContent:"center"}}><strong>{this.props.Movie.title}</strong>
+              </div>
+              <div style={{height : 20*factorMobile,  width:30*factorMobile}}>
+                {this.props.connected ?
+                  <WatchLaterButton Movie={this.props.Movie} toggleInToWatchList={this.props.toggleInToWatchList} Size={this.props.Size*1.5}/>
+                  :null
+                }
+              </div>
+
+            </div>
+          </div>
+      </div>
+    )
+  }
+
+
+
+  render() {
+
+
+    if (isMobile) {
+      return (this.renderMobile())
+    }else{
+      return (this.renderComputer())
+    }
   }
 }
 

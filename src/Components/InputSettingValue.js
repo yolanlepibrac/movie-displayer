@@ -28,7 +28,7 @@ class InputSettingValueComponent extends React.Component {
   }
 
   render(){
-    return(<input style={{height:30, margin:0, padding:0, paddingLeft:10, width: 150}} onChange={this.props.handleChange} id="userNameModified" class="form-control" placeholder={this.props.placeHolder} onKeyDown={this.props.enterToSubmit}/>)
+    return(<input style={{height:30, margin:0, padding:0, paddingLeft:10, width: this.props.length}} onChange={this.props.handleChange} id="userNameModified" class="form-control" placeholder={this.props.placeHolder} onKeyDown={this.props.enterToSubmit}/>)
   }
 
 }
