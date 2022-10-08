@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: yolanlepibrac/block-deployment@v1.1
+        uses: yolanlepibrac/block-deployment@v1.2
         with:
           credential: 'Mona the Octocat'
           pullRequestWords: 'cancel-ci'
