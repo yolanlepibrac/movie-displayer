@@ -18,4 +18,4 @@ jobs:
           pr-name: 'cancel-build'
       # Use the output from the `hello` step
       - name: Get the output time
-        run: echo "The build need to be ${{ steps.cancelBuild.outputs[cancel-build] }}"
+        run: echo "The build need to be ${{ steps.cancelBuild.outputs.cancel-build }}"
