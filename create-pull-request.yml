@@ -1,0 +1,22 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - production
+
+jobs:
+  block_release_if_hot_fixing:
+    runs-on: ubuntu-latest
+    name: Cancel the staging build
+    steps:
+      - name: Hello world action step
+        id: hello
+        uses: octocat/block-deployment@v1.1
+        with:
+          credential: 'Mona the Octocat'
+          pullRequestWords: 'cancel-ci'
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
