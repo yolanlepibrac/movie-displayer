@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: Cancel workflow if PR is named cancel-build
         id: cancelBuild
-        uses: yolanlepibrac/block-deployment@v1.5
+        uses: yolanlepibrac/block-deployment@v1.6
         with:
           pr-name: 'cancel-build'
       # Use the output from the `hello` step
       - name: Get the output time
-        run: echo "The build need to be ${{ steps.cancelBuild.outputs.cancel-build }}"
+        run: echo "The build need to be ${{ steps.cancelBuild.outputs.cancel_build }}"
