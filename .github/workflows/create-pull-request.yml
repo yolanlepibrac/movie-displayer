@@ -11,12 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Cancel the staging build
     steps:
-      - name: Hello world action step
-        id: hello
-        uses: yolanlepibrac/block-deployment@v1.3
+      - name: Cancel workflow if PR is named cancel-build
+        id: cancelBuild
+        uses: yolanlepibrac/block-deployment@v1.4
         with:
-          credential: 'Mona the Octocat'
-          pullRequestWords: 'cancel-ci'
+          pr-name: 'cancel-build'
       # Use the output from the `hello` step
       - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+        run: echo "The time was ${{ steps.cancelBuild.outputs.cancel-build }}"
