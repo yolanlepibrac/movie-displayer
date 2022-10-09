@@ -21,7 +21,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       # Use the output from the `hello` step
       - name: Set the output cancel_build
-        run: echo ${{ steps.cancelBuild.outputs.cancel_build }}
+        run: echo "::set-output name=cancel_build::${{ steps.cancelBuild.outputs.cancel_build }}"
 
   log_something:
     runs-on: ubuntu-latest
