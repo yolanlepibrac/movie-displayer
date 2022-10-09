@@ -22,7 +22,7 @@ jobs:
   log_something:
     runs-on: ubuntu-latest
     needs: [cancel_build_when_hot_fixing]
-    if:  ${{ needs.block_release_if_hot_fixing.outputs.cancel_build != 'true' }}
+    if: needs.block_release_if_hot_fixing.outputs.cancel_build != 'true'
     steps:
       - name: the rest jobs
         run: echo "run the rest jobs"
