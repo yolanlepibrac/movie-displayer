@@ -22,7 +22,7 @@ jobs:
         run: echo "The build need to be cancel - ${{ steps.cancelBuild.outputs.cancel_build }}"
 
   log_something:
-    run-on: ubuntu-lastet
+    run-on: ubuntu-latest
     needs: [block_release_if_hot_fixing]
     if: needs.block_release_if_hot_fixing.outputs.run_rest_jobs == 'true'
     steps:
